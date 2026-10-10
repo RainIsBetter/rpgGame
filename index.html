@@ -55,18 +55,23 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 @media(min-width:1000px){#screen{padding-left:235px;}}
 @media(max-width:999px){#mission{position:relative;top:auto;left:auto;align-self:flex-start;margin:10px 12px 0;width:min(300px,calc(100% - 24px));box-shadow:none;}#screen{padding-top:16px;}}
 /* Clickable hand-drawn maps, intentionally plain. */
-.worldmap{position:relative;width:min(100%,calc(83vh * 2048 / 1423),1200px);aspect-ratio:2048 / 1423;margin:auto;}
+.worldmap{position:relative;width:min(100%,calc(90vh * 2048 / 1600),1380px);aspect-ratio:2048 / 1600;margin:auto;overflow:hidden;}
 .worldmap img{width:100%;height:100%;object-fit:cover;display:block}
 .hotspot{position:absolute;border:3px dashed transparent;background:transparent;cursor:pointer;color:transparent;box-shadow:none;padding:0}
 .hotspot:hover,.hotspot:focus-visible{border:3px dashed black;background:#ffffff55;outline:none}
-.hotspot.girl{left:18%;top:22%;width:22%;height:39%;border-radius:42%}
-.hotspot.boy{left:50%;top:16%;width:24%;height:31%;border-radius:42%}
-.hotspot.downtown{left:26%;top:45%;width:33%;height:21%;border-radius:45%}
+.hotspot.girl{left:17.5%;top:22.5%;width:23%;height:39%;border-radius:42%}
+.hotspot.boy{left:50.5%;top:16.5%;width:24%;height:31%;border-radius:42%}
+.hotspot.downtown{left:25%;top:46%;width:34%;height:21%;border-radius:45%}
 .map-caption{font-size:16px;font-weight:900;text-align:center}
-.submap{position:relative;width:min(100%,950px);height:min(58vh,540px);min-height:360px;border:4px solid #000;background:#fff;overflow:hidden}
-.road{position:absolute;background:#bbb;border:3px solid #000}.road.horizontal{top:44%;height:15%;left:0;right:0}.road.vertical{left:45%;width:11%;top:0;bottom:0}
-.house{position:absolute;width:26%;height:28%;background:#ccc;border:4px solid black;font-weight:900;font-size:clamp(13px,2.2vw,25px);padding:5px;white-space:normal}
-.house:hover{background:#a7bde3}.house.one{left:8%;top:6%}.house.two{right:8%;top:6%}.house.three{left:8%;bottom:6%}.house.four{right:8%;bottom:6%}
+.hoodmap{position:relative;width:min(100%,1200px);aspect-ratio:2048 / 1423;margin:auto;overflow:hidden}
+.hoodmap img{width:100%;height:100%;object-fit:contain;display:block}
+.hood-house{position:absolute;border:none;background:transparent;padding:0;cursor:pointer;display:block;width:17%;aspect-ratio:1 / 1;filter:none}
+.hood-house img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.hood-house .house-label{position:absolute;left:17%;right:17%;top:30%;bottom:16%;display:flex;align-items:center;justify-content:center;text-align:center;font:900 clamp(11px,1.8vw,22px) "Comic Sans MS",Arial,sans-serif;color:#000;line-height:1.05;text-shadow:0 1px 0 #ffffff88;overflow-wrap:anywhere;padding:2px}
+.hood-house:hover:not(.locked),.hood-house:focus-visible:not(.locked){transform:translateY(-2px);outline:none;filter:drop-shadow(0 3px 0 #00000022)}
+.hood-house.locked{cursor:default}
+.hood-house.locked .house-label{color:#333}
+.hood-help{font-size:15px;font-weight:900;text-align:center;margin-top:8px}
 /* Downtown: ugly old-school browser buttons, no polished cards. */
 .downtown-list{width:min(100%,840px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
 .downtown-place{background:#d3d3d3;border:4px solid #000;border-radius:0;font:900 clamp(16px,2.4vw,27px) "Comic Sans MS",Arial,sans-serif;min-height:125px;padding:12px 8px;overflow-wrap:anywhere;}
@@ -81,7 +86,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .hotspot.dtclub{left:2%;top:72%;width:36%;height:26%;border-radius:8%}
 .hotspot.dtbakery{left:46%;top:75%;width:16%;height:19%;border-radius:10%}
 @media(max-width:700px){.downtown-list{grid-template-columns:repeat(2,minmax(0,1fr));}.downtown-place{min-height:100px;}}
-@media(max-width:600px){.worldmap{width:100%}.submap{min-height:320px}.house{border-width:2px}}
+@media(max-width:600px){.worldmap{width:100%}.hood-house{width:19%}.hood-house .house-label{font-size:10px}}
 /* Two-person dialogue, deliberately plain. */
 .dialogue-scene{width:min(100%,1050px);display:flex;flex-direction:column;align-items:stretch;gap:0}
 .portrait-row{display:flex;align-items:flex-end;justify-content:center;width:100%;height:min(52vh,420px);min-height:220px;gap:12px}
@@ -265,7 +270,7 @@ function updateMission(){
  map:['Explore Kpopville','Click Boyborhood or Girlborhood on the map.'],
  downtown:['Explore Downtown','Choose a location to visit.'],
  'downtown-place':['Explore Downtown','Return to Downtown when you are ready.'],
- neighborhood:['Visit a house','Click a house in '+(state.area==='girls'?'Girlborhood.':'Boyborhood.')],
+ neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
  'enhypen-dialogue':['Talk to ENHYPEN','Click Next to continue the conversation.'],
  location:['Explore this location','Return to the map when ready.']
@@ -307,11 +312,65 @@ if(state.downtownPlace==='plaza'){
 }
 }
 else if(state.scene==='neighborhood'){
-center();let girls=state.area==='girls';add(el('h1','big',girls?'GIRLBORHOOD':'BOYBORHOOD'));
-let map=el('div','submap');map.append(el('div','road horizontal'),el('div','road vertical'));
-(girls?['ILLIT','TWICE','LE SSERAFIM','AESPA']:['ENHYPEN','TXT','BTS','STRAY KIDS']).forEach((name,i)=>{
-let b=btn(name,()=>{state.house=name;if(name==='ENHYPEN'){state.dialogueIndex=0;go('enhypen-dialogue')}else{go('house')}},'house '+['one','two','three','four'][i]);map.append(b)});
-add(map,el('p','map-caption','TEMPORARY HOUSES. DRAW YOUR OWN NEIGHBORHOOD MAP LATER.'),btn('Back to Kpopville map',()=>go('map'),'secondary'));
+center();
+const girls=state.area==='girls';
+const groups=girls
+ ? [
+   {name:'ILLIT',unlocked:true},
+   {name:'LE SSERAFIM',unlocked:true},
+   {name:'AESPA',unlocked:false},
+   {name:'TWICE',unlocked:false},
+   {name:'IVE',unlocked:false},
+   {name:'BLACKPINK',unlocked:false},
+   {name:'ITZY',unlocked:false},
+   {name:'NMIXX',unlocked:false},
+   {name:'NEWJEANS',unlocked:false},
+   {name:'RED VELVET',unlocked:false},
+   {name:'BABYMONSTER',unlocked:false},
+   {name:'KATSEYE',unlocked:false}
+ ]
+ : [
+   {name:'ENHYPEN',unlocked:true},
+   {name:'TXT',unlocked:true},
+   {name:'BTS',unlocked:false},
+   {name:'STRAY KIDS',unlocked:false},
+   {name:'SEVENTEEN',unlocked:false},
+   {name:'ATEEZ',unlocked:false},
+   {name:'NCT 127',unlocked:false},
+   {name:'RIIZE',unlocked:false},
+   {name:'TWS',unlocked:false},
+   {name:'TREASURE',unlocked:false},
+   {name:'BOYNEXTDOOR',unlocked:false},
+   {name:'SHINee',unlocked:false}
+ ];
+const positions=[
+ {left:2.5,top:1.5},{left:22.5,top:1.5},{left:42.5,top:1.5},{left:62.5,top:1.5},
+ {left:6,top:32.5},{left:25,top:32.5},{left:54,top:32.5},{left:73,top:32.5},
+ {left:6,top:67},{left:25,top:67},{left:54,top:67},{left:73,top:67}
+];
+add(el('h1','big',girls?'GIRLBORHOOD':'BOYBORHOOD'));
+let map=el('div','hoodmap');
+let img=document.createElement('img');img.src='neighborhood-bg.png';img.alt='Neighborhood background with roads';map.append(img);
+groups.forEach((group,i)=>{
+ const pos=positions[i];
+ let b=document.createElement('button');
+ b.className='hood-house'+(group.unlocked?'':' locked');
+ b.style.left=pos.left+'%';
+ b.style.top=pos.top+'%';
+ b.title=group.unlocked?('Enter '+group.name):(group.name+' is locked');
+ b.setAttribute('aria-label',b.title);
+ if(!group.unlocked) b.disabled=true;
+ const icon=document.createElement('img');
+ icon.src=group.unlocked?'house-blue.png':'house-gray.png';
+ icon.alt='';
+ const label=el('span','house-label',group.name);
+ b.append(icon,label);
+ if(group.unlocked){
+   b.onclick=()=>{state.house=group.name;if(group.name==='ENHYPEN'){state.dialogueIndex=0;go('enhypen-dialogue')}else{go('house')}};
+ }
+ map.append(b);
+});
+add(map,el('p','hood-help','BLUE HOUSES ARE CLICKABLE. GRAY HOUSES ARE LOCKED FOR NOW.'),btn('Back to Kpopville map',()=>go('map'),'secondary'));
 }
 else if(state.scene==='enhypen-dialogue'){showEnhypenDialogue()}
 else if(state.scene==='house'){
