@@ -1,41 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kpopville map test</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kpopville: Demo</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:white;color:black;font-family:Arial,sans-serif}button{font:700 17px Arial;cursor:pointer;background:#d8d8d8;border:3px solid black;border-radius:0;padding:10px 18px;box-shadow:3px 3px 0 #888}button:hover{background:#b7d5ff}button:active{box-shadow:none;transform:translate(3px,3px)}.screen{display:none;min-height:100vh}.screen.active{display:block}#main{display:none;min-height:100vh;align-items:center;justify-content:center}#main.active{display:flex}.map{position:relative;width:min(100vw, calc(100vh * 2048 / 1423));aspect-ratio:2048 / 1423}.map img{display:block;width:100%;height:100%;object-fit:contain}.hotspot{position:absolute;background:transparent;border:3px dashed transparent;box-shadow:none;padding:0;transform:none}.hotspot:hover,.hotspot:focus-visible{background:rgba(255,255,255,.18);outline:none;border:3px dashed #222}.hotspot:active{transform:none}.hotspot span{position:absolute;left:-9999px}.girl{left:6%;top:22%;width:23%;height:45%;border-radius:45%}.boy{left:50%;top:7%;width:25%;height:35%;border-radius:42%}.map-help{position:fixed;bottom:10px;left:10px;background:#fff;border:2px solid #000;padding:6px;font-size:13px;z-index:2}.neighborhood{padding:15px 18px}.toolbar{display:flex;gap:15px;align-items:center;flex-wrap:wrap}.toolbar h1{font:700 32px Arial;margin:5px 0}.submap{border:4px solid black;position:relative;width:min(1100px,calc(100vw - 36px));height:min(69vh,650px);min-height:390px;margin:18px auto 8px;background:#fff;overflow:hidden}.road{position:absolute;background:#b7b7b7;border:3px solid black}.road.h{left:0;right:0;top:45%;height:16%}.road.v{left:46%;top:0;bottom:0;width:12%}.plot{position:absolute;width:25%;height:28%;border:4px solid black;display:flex;align-items:center;justify-content:center;font:700 clamp(14px,2.3vw,27px) Arial;text-align:center;cursor:pointer;background:#d5e5ff;box-shadow:4px 5px 0 #777;padding:5px}.plot:hover{background:#a9c8ff}.plot.girls{background:#ececec}.plot.girls:hover{background:#c8ddff}.p1{left:9%;top:7%}.p2{right:9%;top:7%}.p3{left:9%;bottom:7%}.p4{right:9%;bottom:7%}.house-roof{position:absolute;top:-19px;left:8%;width:84%;height:18px;border:3px solid black;background:#eee;clip-path:polygon(50% 0,100% 100%,0 100%)}.note{font-size:14px;margin:4px auto;max-width:1100px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;padding:18px}.modal.active{display:flex}.dialog{background:white;border:4px solid black;box-shadow:7px 7px 0 #444;padding:25px;width:min(480px,100%)}.dialog h2{margin:0 0 10px}.dialog button{margin-top:12px}
-@media(max-width:600px){.map-help{font-size:11px}.toolbar h1{font-size:25px}.plot{border-width:3px}.neighborhood{padding:10px}.submap{width:100%;margin-top:10px}}
+/* Intentionally crude white-background / classic web look. */
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;}
+body{background:#fff;color:#000;font-family:"Comic Sans MS","Comic Sans",Arial,sans-serif;}
+button{font-family:inherit;cursor:pointer;color:#000;}
+#game{width:100%;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:#fff;}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 15px;background:#fff;border-bottom:3px solid #000;}
+.logo{font-family:Impact,"Arial Black",sans-serif;font-weight:900;font-size:clamp(24px,5vw,46px);letter-spacing:1px;}
+.small{font:700 14px Arial,sans-serif;color:#000;}
+.reset{background:#ccc;border:3px solid #000;border-radius:0;padding:8px 14px;font-size:15px;font-weight:bold;}
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 18px;gap:22px;min-height:0;background:#fff;}
+main.center{text-align:center;}
+.tag{font-size:clamp(15px,2vw,22px);text-transform:uppercase;color:#000;font-weight:900;background:#fff;padding:3px 12px;border:2px solid #000;}
+.big{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(48px,9vw,118px);line-height:1.02;letter-spacing:1px;margin:0;color:#000;}
+.lead{max-width:780px;font-size:clamp(18px,2.2vw,25px);font-weight:bold;line-height:1.35;margin:0;color:#000;}
+.primary,.secondary{background:#bcbcbc;border:4px solid #000;border-radius:0;padding:12px 24px;font-weight:900;font-size:clamp(17px,2vw,24px);}
+.secondary{background:#9fb9e6;}
+button:hover{background:#b7cdf0;}
+button:active{background:#777;transform:translate(2px,2px);}
+.choices{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;width:100%;}
+.panel{background:#fff;border:4px solid #000;border-radius:0;padding:18px;max-width:860px;width:min(100%,860px);text-align:left;}
+.speaker{background:#ddd;border:2px solid #000;display:inline-block;font-size:19px;font-weight:900;padding:3px 12px;margin-bottom:15px;}
+.dialogue{font-size:clamp(19px,2.7vw,29px);line-height:1.35;margin:0 0 22px;font-weight:bold;}
+.stage{width:min(100%,860px);min-height:clamp(180px,30vh,330px);background:#fff;border:4px solid #000;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.stage .art{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(55px,9vw,115px);color:#000;z-index:1;}
+.stage .hint{position:relative;z-index:1;background:#fff;border:2px dashed #000;padding:7px;font-size:clamp(13px,2vw,18px);font-weight:900;margin:10px 20px;}
+.group{background:#ddd;border:4px solid #000;border-radius:0;width:min(300px,42vw);min-height:240px;padding:20px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.group:nth-child(2){background:#aac2ea;}
+.group .symbol{font-size:73px;}
+.group strong{font:900 clamp(23px,4vw,40px) Impact,"Arial Black",sans-serif;}
+.map{width:min(100%,1100px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;}
+.place{background:#ddd;border:4px solid #000;border-radius:0;min-height:clamp(150px,22vh,225px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+.place:nth-child(2),.place:nth-child(4){background:#b3c8e8;}
+.place .symbol{font-size:clamp(40px,6vw,80px)}
+.place strong{font:900 clamp(20px,3vw,36px) Impact,"Arial Black",sans-serif;}
+.place span:last-child{font:700 15px Arial,sans-serif;}
+.nav{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sans-serif;}footer .reset{margin-left:16px;padding:4px 8px;font-size:12px;border-width:2px;}
+@media(max-width:560px){.top{padding:9px}.logo{font-size:25px}.small{font-size:11px}main{padding:22px 12px;gap:18px}.map{gap:16px}.place{min-height:155px}.group{min-height:190px}.group .symbol{font-size:52px}.panel{padding:12px}.primary,.secondary{padding:10px 14px}}
+
+/* Clickable hand-drawn maps, intentionally plain. */
+.worldmap{position:relative;width:min(100%,calc(83vh * 2048 / 1423),1200px);aspect-ratio:2048 / 1423;margin:auto;}
+.worldmap img{width:100%;height:100%;object-fit:contain;display:block}
+.hotspot{position:absolute;border:3px dashed transparent;background:transparent;cursor:pointer;color:transparent;box-shadow:none;padding:0}
+.hotspot:hover,.hotspot:focus-visible{border:3px dashed black;background:#ffffff55;outline:none}
+.hotspot.girl{left:6%;top:23%;width:24%;height:44%;border-radius:42%}
+.hotspot.boy{left:50%;top:7%;width:26%;height:35%;border-radius:42%}
+.map-caption{font-size:16px;font-weight:900;text-align:center}
+.submap{position:relative;width:min(100%,950px);height:min(58vh,540px);min-height:360px;border:4px solid #000;background:#fff;overflow:hidden}
+.road{position:absolute;background:#bbb;border:3px solid #000}.road.horizontal{top:44%;height:15%;left:0;right:0}.road.vertical{left:45%;width:11%;top:0;bottom:0}
+.house{position:absolute;width:26%;height:28%;background:#ccc;border:4px solid black;font-weight:900;font-size:clamp(13px,2.2vw,25px);padding:5px;white-space:normal}
+.house:hover{background:#a7bde3}.house.one{left:8%;top:6%}.house.two{right:8%;top:6%}.house.three{left:8%;bottom:6%}.house.four{right:8%;bottom:6%}
+@media(max-width:600px){.worldmap{width:100%}.submap{min-height:320px}.house{border-width:2px}}
 </style>
 </head>
 <body>
-<section id="main" class="screen active">
-  <div class="map">
-    <img src="kpopville-map.png" alt="Hand drawn Kpopville map">
-    <button class="hotspot girl" aria-label="Go to Girlborhood" onclick="openArea('girls')"><span>Girlborhood</span></button>
-    <button class="hotspot boy" aria-label="Go to Boyborhood" onclick="openArea('boys')"><span>Boyborhood</span></button>
-  </div>
-  <div class="map-help">Click Girlborhood or Boyborhood on the map</div>
-</section>
-<section id="neighborhood" class="screen neighborhood">
-  <div class="toolbar"><button onclick="showMain()">&lt; BACK TO KPOPVILLE</button><h1 id="areaTitle">BOYBORHOOD</h1></div>
-  <div class="submap">
-    <div class="road h"></div><div class="road v"></div>
-    <div class="plot p1" role="button" tabindex="0"><div class="house-roof"></div></div>
-    <div class="plot p2" role="button" tabindex="0"><div class="house-roof"></div></div>
-    <div class="plot p3" role="button" tabindex="0"><div class="house-roof"></div></div>
-    <div class="plot p4" role="button" tabindex="0"><div class="house-roof"></div></div>
-  </div>
-  <p class="note">TEMPORARY MAP. Replace with your drawing later. Click a house to test a location.</p>
-</section>
-<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="dialog"><h2 id="dialogTitle">House</h2><p>This house will have a scene later.</p><button onclick="closeDialog()">OK</button></div></div>
+<div id="game"><main id="screen"></main><footer>MADE IN KPOPVILLE PAINT (sort of) // DEMO v0.4 <button class="reset" id="reset">Start over</button></footer></div>
 <script>
-const areaNames={boys:['ENHYPEN','TXT','BTS','STRAY KIDS'],girls:['ILLIT','TWICE','LE SSERAFIM','AESPA']};
-function openArea(area){document.getElementById('main').classList.remove('active');document.getElementById('neighborhood').classList.add('active');document.getElementById('areaTitle').textContent=area==='girls'?'GIRLBORHOOD':'BOYBORHOOD';document.querySelectorAll('.plot').forEach((el,i)=>{let name=areaNames[area][i];el.classList.toggle('girls',area==='girls');el.innerHTML='<div class="house-roof"></div>'+name;el.onclick=()=>openDialog(name);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDialog(name)}}});}
-function showMain(){closeDialog();document.getElementById('neighborhood').classList.remove('active');document.getElementById('main').classList.add('active')}
-function openDialog(name){document.getElementById('dialogTitle').textContent=name+' HOUSE';document.getElementById('modal').classList.add('active')}
-function closeDialog(){document.getElementById('modal').classList.remove('active')}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialog()});
+const screen=document.getElementById('screen');
+const KEY='kpopville-demo-save-v1';
+let state={scene:'title',group:null,visited:[],area:'boys'};
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
+function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
+function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
+function el(t,cls,text){let a=document.createElement(t);if(cls)a.className=cls;if(text!==undefined)a.textContent=text;return a}
+function add(...items){screen.append(...items)}function center(){screen.className='center'}
+function panel(name,text,buttons){let p=el('section','panel');p.append(el('div','speaker',name),el('p','dialogue',text));let n=el('div','nav');buttons.forEach(x=>n.append(btn(x[0],x[1],x[2]||'primary')));p.append(n);return p}
+function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',symbol),el('div','hint',caption));return a}
+const locations={home:{name:'Your mansion',symbol:'[ E ]',caption:'Your new home in Kpopville'},street:{name:'Town square',symbol:'[ ! ]',caption:'Everyone seems to be here'},cafe:{name:'Kpop café',symbol:'[ C ]',caption:'A café with questionable menu items'},neighbors:{name:'Other group’s house',symbol:'[ ? ]',caption:'The neighbors are suspiciously loud'}};
+function locationOpen(key){state.visited=[...new Set([...state.visited,key])];state.current=key;go('location')}
+function render(){screen.replaceChildren();
+if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
+else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','DRAW YOUR INTRO SCENE HERE'),panel('MOM','I have some news. I donated you to Kpopville.',[['YOU WHAT?!',()=>go('choose')],['Is this even legal?',()=>go('choose'),'secondary']]));}
+else if(state.scene==='choose'){center();add(tag('Your story, your choice'),el('h1','big','Who will take you in?'),el('p','lead','This changes your home and the characters you meet first.'));let c=el('div','choices');[['ENHYPEN','E'],['TXT','T']].forEach(([name,symbol])=>{let b=el('button','group');b.append(el('span','symbol',symbol),el('strong','',name),el('span','small','Choose this group'));b.onclick=()=>{state.group=name;state.visited=[];go('arrival')};c.append(b)});add(c);}
+else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('KPOPVILLE','DRAW THE CITY HERE'),panel('NARRATOR',`After an incredibly questionable journey, you arrive in Kpopville. The ${state.group} house is waiting for you.`,[['Explore Kpopville',()=>go('map')]]));}
+else if(state.scene==='map'){
+center();add(el('p','map-caption','CLICK A NEIGHBORHOOD TO ENTER IT'));
+let m=el('div','worldmap');let img=document.createElement('img');img.src='kpopville-map.png';img.alt='Your hand-drawn Kpopville map';m.append(img);
+[['girl','girls','Girlborhood'],['boy','boys','Boyborhood']].forEach(([cls,area,label])=>{let b=btn(label,()=>{state.area=area;go('neighborhood')},'hotspot '+cls);b.setAttribute('aria-label','Enter '+label);b.title='Enter '+label;m.append(b)});
+add(m);add(el('p','map-caption','OTHER LOCATIONS WILL BE CLICKABLE LATER'));
+}
+else if(state.scene==='neighborhood'){
+center();let girls=state.area==='girls';add(el('h1','big',girls?'GIRLBORHOOD':'BOYBORHOOD'));
+let map=el('div','submap');map.append(el('div','road horizontal'),el('div','road vertical'));
+(girls?['ILLIT','TWICE','LE SSERAFIM','AESPA']:['ENHYPEN','TXT','BTS','STRAY KIDS']).forEach((name,i)=>{
+let b=btn(name,()=>{state.house=name;go('house')},'house '+['one','two','three','four'][i]);map.append(b)});
+add(map,el('p','map-caption','TEMPORARY HOUSES. DRAW YOUR OWN NEIGHBORHOOD MAP LATER.'),btn('Back to Kpopville map',()=>go('map'),'secondary'));
+}
+else if(state.scene==='house'){
+center();add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+}
+else if(state.scene==='location'){center();let key=state.current||'home',x=locations[key]||locations.home;add(tag(x.name),stage('???','YOUR DRAWING GOES HERE'));let line={home:`Welcome to the ${state.group} house! Your room is somewhere around here, probably.`,street:'The entire town is shaped like someone lost control of a K-pop-themed building simulator.',cafe:'BARISTA: Welcome! Our special today is an aggressively burnt pancake.',neighbors:`NEIGHBOR: Oh, you're staying with ${state.group}? Interesting. Very interesting.`}[key];add(panel(key==='cafe'?'BARISTA':key==='neighbors'?'NEIGHBOR':'NARRATOR',line,[['Back to map',()=>go('map')],['Talk again',()=>render(),'secondary']]));}
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Restart the demo and erase your saved choice?')){localStorage.removeItem(KEY);state={scene:'title',group:null,visited:[]};render()}};render();
 </script>
-</body>
-</html>
+</body></html>
