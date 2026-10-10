@@ -87,7 +87,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .portrait-row{display:flex;align-items:flex-end;justify-content:center;width:100%;height:min(52vh,420px);min-height:220px;gap:12px}
 .person-portrait{width:auto;height:100%;max-width:46%;object-fit:contain;object-position:bottom;transition:opacity .12s}
 .person-portrait.yn-portrait{height:82%;max-width:36%;align-self:flex-end}
-.person-portrait.inactive{opacity:.62}
+.person-portrait.inactive{filter:grayscale(1) brightness(.78);opacity:1}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
 @media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
@@ -97,12 +97,74 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .square-characters{width:100%;height:clamp(230px,48vh,430px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(5px,2vw,28px);border-bottom:3px solid black;background:#ddd url("town-square-bg.png") center center / cover no-repeat;overflow:hidden}
 .square-person{width:30%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
 .square-person.square-yn{height:82%;width:27%}
-.square-person.not-speaking{opacity:.55}
+.square-person.not-speaking{filter:grayscale(1) brightness(.78);opacity:1}
 .square-scene .panel{max-width:none;width:100%;margin:0}
 .square-place{font:900 16px Arial,sans-serif;text-transform:uppercase}
 /* Shared plaza artwork used both for recruiting and later visits. */
 .plaza-view{width:min(100%,1050px);aspect-ratio:2048 / 1423;background:#ddd url("town-square-bg.png") center / contain no-repeat;border:3px solid #000;}
 @media(max-width:650px){.square-characters{height:270px}.square-person{width:34%}.square-person.square-yn{width:29%;height:82%}}
+
+/* Fit each scene within the visible browser viewport; no page scrolling. */
+html,body{height:100%;overflow:hidden}
+#game{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#screen{height:100%;min-height:0;overflow:hidden;gap:clamp(4px,1vh,12px);padding:clamp(8px,1.5vh,16px) clamp(8px,1.5vw,18px);}
+footer{flex:0 0 auto;padding:3px 8px;font-size:11px;min-height:28px}
+footer .reset{padding:2px 6px;font-size:11px}
+.big{font-size:clamp(30px,min(6vw,8vh),82px)}
+.lead{font-size:clamp(13px,1.7vw,20px)}
+.primary,.secondary{font-size:clamp(13px,1.5vw,20px);padding:clamp(5px,.9vh,10px) clamp(9px,1.5vw,18px);border-width:3px}
+.tag{font-size:clamp(11px,1.5vw,17px);padding:2px 7px}
+.panel{padding:clamp(7px,1.3vh,14px);flex:0 0 auto}
+.speaker{font-size:clamp(13px,1.5vw,17px);margin-bottom:clamp(4px,.7vh,8px);padding:2px 8px}
+.dialogue{font-size:clamp(14px,2vw,23px);line-height:1.2;margin:0 0 clamp(5px,1vh,11px)}
+.dialogue-progress{margin:0 0 6px;font-size:12px}
+.nav{gap:8px}
+.stage{min-height:0;height:min(35vh,285px);flex-shrink:1}
+.stage .art{font-size:clamp(35px,8vh,80px)}
+.group{min-height:0;height:min(31vh,225px)}
+.group .symbol{font-size:clamp(30px,7vh,65px)}
+.worldmap,.downtownmap{width:min(100%,calc(67dvh * 2048 / 1423),1100px);height:auto;max-height:67dvh;aspect-ratio:2048 / 1423;}
+.submap{height:min(62dvh,480px);min-height:0}
+.map-caption{font-size:clamp(11px,1.3vw,15px);margin:0}
+.dialogue-scene,.square-scene{height:min(100%,calc(100dvh - 90px));min-height:0;}
+.portrait-row,.square-characters{height:auto;min-height:0;flex:1 1 0;}
+.person-portrait,.square-person{min-height:0}
+.square-scene .panel,.dialogue-scene .panel{flex:0 0 auto}
+.plaza-view{width:auto;max-width:100%;height:min(66dvh,590px);aspect-ratio:2048 / 1423}
+#mission{top:8px;left:8px;width:clamp(130px,16vw,205px);padding:6px;box-shadow:none}
+#mission strong{font-size:clamp(13px,1.5vw,18px);margin-bottom:4px}
+#missionText{font-size:clamp(12px,1.2vw,15px)}
+#mission small{font-size:11px;margin-top:4px}
+@media(min-width:1000px){#screen{padding-left:clamp(145px,17vw,220px)}}
+@media(max-width:999px){#mission{position:absolute;left:6px;top:6px;width:clamp(112px,19vw,170px);margin:0}#screen{padding-top:clamp(8px,1.5vh,16px)}}
+@media(max-width:650px){
+ #mission{width:120px;max-height:95px;overflow:hidden;padding:4px;border-width:2px}
+ #mission strong{font-size:12px;padding:1px;margin-bottom:2px}
+ #missionText{font-size:11px}#mission small{display:none}
+ #screen{padding-left:4px;padding-right:4px;gap:5px}
+ .square-person{width:31%}.square-person.square-yn{width:28%}
+ .dialogue-scene,.square-scene{height:min(100%,calc(100dvh - 55px))}
+ .panel{padding:6px;border-width:2px}
+ .speaker{margin-bottom:4px}
+ .dialogue{font-size:clamp(12px,3vw,17px)}
+ .worldmap,.downtownmap{max-height:67dvh}
+ .submap{height:55dvh}
+ .plaza-view{height:min(55dvh,460px)}
+ footer{font-size:9px}
+}
+@media(max-height:620px){
+ #screen{gap:4px;padding-top:5px;padding-bottom:5px}
+ .tag{display:none}
+ .lead{font-size:13px}
+ .dialogue{font-size:clamp(12px,1.8vw,18px);margin-bottom:5px}
+ .speaker{margin-bottom:3px}
+ .stage{height:25vh}
+ .square-place{font-size:12px}
+ .square-scene,.dialogue-scene{height:calc(100dvh - 42px)}
+ .panel{padding:6px}
+ .primary,.secondary{padding:4px 8px;font-size:13px}
+ .worldmap,.downtownmap{max-height:69dvh}
+}
 </style>
 </head>
 <body>
