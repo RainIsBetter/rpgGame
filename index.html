@@ -334,7 +334,10 @@ let downtown=btn('Enter Downtown',()=>go('downtown'),'hotspot downtown');downtow
 add(m);add(el('p','map-caption','CLICK DOWNTOWN, BOYBORHOOD, OR GIRLBORHOOD'));
 }
 else if(state.scene==='downtown'){
-center();add(tag('Kpopville'),el('h1','big','DOWNTOWN'),el('p','lead','Click a place on your Downtown map.'));
+center();
+const backToMain=btn('← MAIN MAP',()=>go('map'),'neighborhood-back');
+backToMain.setAttribute('aria-label','Back to Kpopville main map');
+add(backToMain);add(tag('Kpopville'),el('h1','big','DOWNTOWN'),el('p','lead','Click a place on your Downtown map.'));
 let m=el('div','downtownmap');let img=document.createElement('img');img.src='downtown-map.png';img.alt='Your hand-drawn Downtown map';m.append(img);
 [['dthospital','hospital','Hospital'],['dtstudio','studio','Dance / Singing Studio'],['dtplaza','plaza','Central Plaza'],['dtmall','mall','Mall'],['dtclub','club','Club'],['dtbakery','bakery','Bakery']].forEach(([cls,id,label])=>{
  let b=btn(label,()=>{state.downtownPlace=id;go('downtown-place')},'hotspot '+cls);
@@ -342,10 +345,14 @@ let m=el('div','downtownmap');let img=document.createElement('img');img.src='dow
  b.title='Enter '+label;
  m.append(b);
 });
-add(m,el('p','map-caption','CLICK HOSPITAL, STUDIO, CENTRAL PLAZA, MALL, CLUB, OR BAKERY'),btn('Back to Kpopville map',()=>go('map'),'secondary'));
+add(m,el('p','map-caption','CLICK HOSPITAL, STUDIO, CENTRAL PLAZA, MALL, CLUB, OR BAKERY'));
 }
 else if(state.scene==='downtown-place'){
-center();let name=downtownPlaces[state.downtownPlace]||'Downtown';
+center();
+const backToDowntown=btn('← DOWNTOWN',()=>go('downtown'),'neighborhood-back');
+backToDowntown.setAttribute('aria-label','Back to Downtown map');
+add(backToDowntown);
+let name=downtownPlaces[state.downtownPlace]||'Downtown';
 if(state.downtownPlace==='plaza'){
  add(tag('Downtown'),el('h1','big','CENTRAL PLAZA'),el('div','plaza-view'),panel('NARRATOR','You are back at Town Square. The fountain is still here.',[['Back to Downtown',()=>go('downtown')],['Kpopville map',()=>go('map'),'secondary']]));
 }else{
@@ -357,11 +364,11 @@ center();
 const girls=state.area==='girls';
 const groups=girls
  ? [
-   {name:'ILLIT',unlocked:true},
-   {name:'LE SSERAFIM',unlocked:true},
+   {name:'ILLIT',unlocked:false},
+   {name:'LE SSERAFIM',unlocked:false},
    {name:'AESPA',unlocked:false},
-   {name:'TWICE',unlocked:false},
-   {name:'IVE',unlocked:false},
+   {name:'TWICE',unlocked:true},
+   {name:'IVE',unlocked:true},
    {name:'BLACKPINK',unlocked:false},
    {name:'ITZY',unlocked:false},
    {name:'NMIXX',unlocked:false},
