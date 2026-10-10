@@ -82,13 +82,13 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 @media(max-width:600px){.worldmap{width:100%}.submap{min-height:320px}.house{border-width:2px}}
 /* Two-person dialogue, deliberately plain. */
 .dialogue-scene{width:min(100%,1050px);display:flex;flex-direction:column;align-items:stretch;gap:0}
-.portrait-row{display:flex;align-items:flex-end;justify-content:space-around;width:100%;height:min(52vh,420px);min-height:220px;gap:8px}
-.person-portrait{width:47%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
-.person-portrait.yn-portrait{height:70%;align-self:flex-end}
+.portrait-row{display:flex;align-items:flex-end;justify-content:center;width:100%;height:min(52vh,420px);min-height:220px;gap:12px}
+.person-portrait{width:auto;height:100%;max-width:46%;object-fit:contain;object-position:bottom;transition:opacity .12s}
+.person-portrait.yn-portrait{height:82%;max-width:36%;align-self:flex-end}
 .person-portrait.inactive{opacity:.62}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
-@media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{width:49%}.dialogue-scene .panel{min-width:0}}
+@media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
 </style>
 </head>
 <body>
