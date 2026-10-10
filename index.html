@@ -62,6 +62,9 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .hotspot.girl{left:22%;top:29%;width:16%;height:26%;border-radius:45%}
 .hotspot.boy{left:53%;top:20%;width:16%;height:22%;border-radius:45%}
 .hotspot.downtown{left:29%;top:47%;width:24%;height:15%;border-radius:45%}
+.hotspot.park{left:37%;top:31%;width:13%;height:12%;border-radius:26%}
+.hotspot.gym{left:34%;top:21%;width:14%;height:8%;border-radius:25%}
+.hotspot.salon{left:57%;top:43%;width:7%;height:9%;border-radius:30%}
 .map-caption{font-size:16px;font-weight:900;text-align:center}
 .hoodmap{position:relative;width:min(100%,1200px);aspect-ratio:2048 / 1423;margin:auto;overflow:hidden}
 .hoodmap img{width:100%;height:100%;object-fit:contain;display:block}
@@ -216,6 +219,17 @@ footer .reset{padding:2px 6px;font-size:11px}
 /* Keep neighborhood navigation visible, even when the map fills the viewport. */
 .neighborhood-back{position:fixed;right:16px;top:14px;z-index:45;background:#b7c8e6;border:3px solid #000;font:900 clamp(13px,1.7vw,19px) "Comic Sans MS",Arial,sans-serif;padding:8px 12px;max-width:190px;}
 @media(max-width:600px){.neighborhood-back{right:8px;top:8px;padding:6px 8px;font-size:12px;max-width:140px}}
+
+/* Small, old-fashioned location scenes, all using the existing shared canvas. */
+.activity-scene{width:var(--canvas-width);height:var(--canvas-height);max-width:100%;display:flex;flex-direction:column;min-height:0;margin:auto;border:3px solid #000;background:#fff;overflow:hidden}
+.activity-art{position:relative;min-height:0;flex:1 1 auto;background:#e0e0e0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.activity-art .placeholder{border:3px dashed #666;background:#f3f3f3;padding:22px;font-size:clamp(14px,2vw,24px);font-weight:900;text-align:center}
+.activity-art .desk-person{height:90%;max-width:37%;object-fit:contain;object-position:bottom;position:absolute;left:12%;bottom:0}
+.activity-art .desk-sign{position:absolute;right:8%;bottom:10%;background:#b5c8e4;border:3px solid #000;padding:12px;font-weight:bold}
+.activity-controls{flex:0 0 auto;background:#fff;border-top:3px solid #000;padding:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+.activity-controls button{font-size:clamp(11px,1.2vw,16px);padding:5px 9px;border-width:2px}
+.activity-message{margin:0;flex-basis:100%;font-size:clamp(12px,1.3vw,16px);font-weight:bold;text-align:center}
+@media(max-height:620px){.activity-controls{padding:4px}.activity-controls button{padding:3px 7px}}
 </style>
 </head>
 <body>
@@ -343,6 +357,9 @@ function updateMission(){
  neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
  'enhypen-dialogue':['Talk to Hoon','Finish your conversation.'],
+ park:['Photocard Park','Explore the park. Events will appear here later.'],
+ gym:['Visit the Gym','Ask Hoon about workouts or choose an exercise.'],
+ salon:['Visit Wonyoung at the Salon','Talk to Wonyoung or choose a beauty treatment.'],
  'txt-dialogue':['Talk to Soobin','Finish your conversation.'],
  location:['Explore this location','Return to the map when ready.']
  };
@@ -353,6 +370,51 @@ function updateMission(){
  }
  document.getElementById('missionText').textContent=objective;
  document.getElementById('missionHint').textContent=hint;
+}
+// Reserved for future plot events. A mission can set state.specialVisit to
+// {place:'gym'|'salon'|'park',character:'Name',text:'...'}.
+function showActivity(place){
+ center();
+ let title={park:'PHOTOCARD PARK',gym:'GYM',salon:'SALON'}[place];
+ add(tag(title));
+ let back=btn('← MAIN MAP',()=>go('map'),'neighborhood-back');add(back);
+ let box=el('section','activity-scene');
+ let art=el('div','activity-art');
+ if(place==='gym'){
+   let hoon=document.createElement('img');hoon.src='hoon.png';hoon.alt='Hoon working at the front desk';hoon.className='desk-person';art.append(hoon,el('div','desk-sign','HOON / FRONT DESK'));
+ }else{
+   if(place==='salon'){
+     art.append(el('div','placeholder','WONYOUNG / FRONT DESK\nSPRITE COMING SOON'));
+   }else{
+     art.append(el('div','placeholder','PARK BACKGROUND GOES HERE'));
+   }
+ }
+ let controls=el('div','activity-controls');
+ let msg=el('p','activity-message',place==='gym'?'Hoon: Welcome to the gym.':place==='salon'?'Wonyoung: Welcome to the salon!':'The park is quiet today.');
+ controls.append(msg);
+ function activityButton(name,response){controls.append(btn(name,()=>{msg.textContent=response},'secondary'))}
+ if(place==='gym'){
+  activityButton('Talk to Hoon','Hoon: Want to work out, or are you just visiting?');
+  activityButton('Treadmill','Y/N tries running on the treadmill.');
+  activityButton('Lift weights','Y/N does a few reps.');
+  activityButton('Stretch','Y/N does some stretches.');
+ }else if(place==='salon'){
+  activityButton('Talk to Wonyoung','Wonyoung: What are we doing today? Hair, nails, facial, or makeup?');
+  activityButton('Hair','The stylist fixes Y/N’s hair.');
+  activityButton('Nails','Y/N gets her nails done.');
+  activityButton('Facial','Y/N gets a facial treatment.');
+  activityButton('Makeup','Y/N tries a new makeup look.');
+ }
+ const mission=state.specialVisit;
+ const active=mission&&mission.place===place;
+ if(active){
+   activityButton('Meet '+mission.character,mission.text||('You talk to '+mission.character+'.'));
+ }else if(place!=='park'){
+   let locked=btn('Special visitor (mission only)',()=>{msg.textContent='No special visitor mission is active right now.'},'secondary');controls.append(locked);
+ }else if(state.parkEvent){
+   activityButton('Join event',state.parkEvent);
+ }
+ box.append(art,controls);add(box);
 }
 function render(){screen.replaceChildren();updateMission();
 if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
@@ -365,8 +427,10 @@ center();add(el('p','map-caption','CLICK A NEIGHBORHOOD TO ENTER IT'));
 let m=el('div','worldmap');let img=document.createElement('img');img.src='kpopville-map.png';img.alt='Your hand-drawn Kpopville map';m.append(img);
 [['girl','girls','Girlborhood'],['boy','boys','Boyborhood']].forEach(([cls,area,label])=>{let b=btn(label,()=>{state.area=area;go('neighborhood')},'hotspot '+cls);b.setAttribute('aria-label','Enter '+label);b.title='Enter '+label;m.append(b)});
 let downtown=btn('Enter Downtown',()=>go('downtown'),'hotspot downtown');downtown.setAttribute('aria-label','Enter Downtown');downtown.title='Enter Downtown';m.append(downtown);
+[['park','Park'],['gym','Gym'],['salon','Salon']].forEach(([id,label])=>{let b=btn('Enter '+label,()=>go(id),'hotspot '+id);b.setAttribute('aria-label','Enter '+label);b.title='Enter '+label;m.append(b)});
 add(m);add(el('p','map-caption','CLICK DOWNTOWN, BOYBORHOOD, OR GIRLBORHOOD'));
 }
+else if(['park','gym','salon'].includes(state.scene)){showActivity(state.scene)}
 else if(state.scene==='downtown'){
 center();
 const backToMain=btn('← MAIN MAP',()=>go('map'),'neighborhood-back');
