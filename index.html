@@ -384,9 +384,9 @@ function showActivity(place){
    let hoon=document.createElement('img');hoon.src='hoon.png';hoon.alt='Hoon working at the front desk';hoon.className='desk-person';art.append(hoon,el('div','desk-sign','HOON / FRONT DESK'));
  }else{
    if(place==='salon'){
-     art.append(el('div','placeholder','WONYOUNG / FRONT DESK\nSPRITE COMING SOON'));
+     let wonyoung=document.createElement('img');wonyoung.src='wonyoung-default.png';wonyoung.alt='Wonyoung working at the front desk';wonyoung.className='desk-person';art.append(wonyoung,el('div','desk-sign','WONYOUNG / FRONT DESK'));
    }else{
-     art.append(el('div','placeholder','PARK BACKGROUND GOES HERE'));
+     let park=document.createElement('img');park.src='park-bg.png';park.alt='Park background';park.className='background-asset';art.append(park);
    }
  }
  let controls=el('div','activity-controls');
