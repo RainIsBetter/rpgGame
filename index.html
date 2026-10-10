@@ -92,13 +92,15 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 
 /* The first scene: three hand-drawn sprites and a rough dialogue box. */
 .square-scene{width:min(100%,1050px);display:flex;flex-direction:column;align-items:stretch;gap:0}
-.square-characters{width:100%;height:clamp(230px,48vh,430px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(5px,2vw,28px);border-bottom:3px solid black;background:white;overflow:hidden}
+.square-characters{width:100%;height:clamp(230px,48vh,430px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(5px,2vw,28px);border-bottom:3px solid black;background:#ddd url("town-square-bg.png") center center / cover no-repeat;overflow:hidden}
 .square-person{width:30%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
-.square-person.square-yn{height:70%;width:25%}
+.square-person.square-yn{height:82%;width:27%}
 .square-person.not-speaking{opacity:.55}
 .square-scene .panel{max-width:none;width:100%;margin:0}
 .square-place{font:900 16px Arial,sans-serif;text-transform:uppercase}
-@media(max-width:650px){.square-characters{height:270px}.square-person{width:34%}.square-person.square-yn{width:27%;height:70%}}
+/* Shared plaza artwork used both for recruiting and later visits. */
+.plaza-view{width:min(100%,1050px);aspect-ratio:2048 / 1423;background:#ddd url("town-square-bg.png") center / contain no-repeat;border:3px solid #000;}
+@media(max-width:650px){.square-characters{height:270px}.square-person{width:34%}.square-person.square-yn{width:29%;height:82%}}
 </style>
 </head>
 <body>
@@ -234,7 +236,11 @@ add(m,el('p','map-caption','CLICK HOSPITAL, STUDIO, CENTRAL PLAZA, MALL, CLUB, O
 }
 else if(state.scene==='downtown-place'){
 center();let name=downtownPlaces[state.downtownPlace]||'Downtown';
-add(tag('Downtown'),el('h1','big',name),stage('[ '+name.toUpperCase()+' ]','YOUR '+name.toUpperCase()+' DRAWING GOES HERE'),panel('NARRATOR','You are at the '+name+'. This location is a placeholder until you add your art and story.',[['Back to Downtown',()=>go('downtown')],['Kpopville map',()=>go('map'),'secondary']]));
+if(state.downtownPlace==='plaza'){
+ add(tag('Downtown'),el('h1','big','CENTRAL PLAZA'),el('div','plaza-view'),panel('NARRATOR','You are back at Town Square. The fountain is still here.',[['Back to Downtown',()=>go('downtown')],['Kpopville map',()=>go('map'),'secondary']]));
+}else{
+ add(tag('Downtown'),el('h1','big',name),stage('[ '+name.toUpperCase()+' ]','YOUR '+name.toUpperCase()+' DRAWING GOES HERE'),panel('NARRATOR','You are at the '+name+'. This location is a placeholder until you add your art and story.',[['Back to Downtown',()=>go('downtown')],['Kpopville map',()=>go('map'),'secondary']]));
+}
 }
 else if(state.scene==='neighborhood'){
 center();let girls=state.area==='girls';add(el('h1','big',girls?'GIRLBORHOOD':'BOYBORHOOD'));
