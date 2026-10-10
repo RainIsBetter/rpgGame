@@ -234,6 +234,7 @@ footer .reset{padding:2px 6px;font-size:11px}
 /* Original, hand-drawn salon and gym backgrounds, beneath the desk sprites. */
 .activity-art .background-asset{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;}
 .activity-art .desk-person{z-index:2;}
+.activity-art .desk-person.wonyoung-desk{height:92%;max-width:46%;left:8%;}
 .activity-art .desk-sign{z-index:3;}
 </style>
 </head>
@@ -396,7 +397,7 @@ function showActivity(place){
    let sunghoon=document.createElement('img');sunghoon.src='hoon.png';sunghoon.alt='Sunghoon working at the front desk';sunghoon.className='desk-person';art.append(sunghoon,el('div','desk-sign','SUNGHOON / FRONT DESK'));
  }else{
    if(place==='salon'){
-     let wonyoung=document.createElement('img');wonyoung.src='wonyoung-default.png';wonyoung.alt='Wonyoung working at the front desk';wonyoung.className='desk-person';art.append(wonyoung,el('div','desk-sign','WONYOUNG / FRONT DESK'));
+     let wonyoung=document.createElement('img');wonyoung.src='wonyoung-default.png';wonyoung.alt='Wonyoung working at the front desk';wonyoung.className='desk-person wonyoung-desk';art.append(wonyoung,el('div','desk-sign','WONYOUNG / FRONT DESK'));
    }else{
      let park=document.createElement('img');park.src='park-bg.png';park.alt='Park background';park.className='background-asset';art.append(park);
    }
