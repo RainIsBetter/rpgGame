@@ -70,6 +70,14 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .downtown-place{background:#d3d3d3;border:4px solid #000;border-radius:0;font:900 clamp(16px,2.4vw,27px) "Comic Sans MS",Arial,sans-serif;min-height:125px;padding:12px 8px;overflow-wrap:anywhere;}
 .downtown-place:nth-child(even){background:#b0c4e6;}
 .downtown-place:hover{background:#b5c9e6;}
+.downtownmap{position:relative;width:min(100%,1100px);aspect-ratio:2048 / 1423;margin:auto;}
+.downtownmap img{width:100%;height:100%;object-fit:contain;display:block}
+.hotspot.dthospital{left:2%;top:4%;width:30%;height:59%;border-radius:10%}
+.hotspot.dtstudio{left:44%;top:3%;width:32%;height:18%;border-radius:10%}
+.hotspot.dtplaza{left:37%;top:30%;width:31%;height:31%;border-radius:6%}
+.hotspot.dtmall{left:69%;top:21%;width:29%;height:73%;border-radius:12%}
+.hotspot.dtclub{left:2%;top:72%;width:36%;height:26%;border-radius:8%}
+.hotspot.dtbakery{left:46%;top:75%;width:16%;height:19%;border-radius:10%}
 @media(max-width:700px){.downtown-list{grid-template-columns:repeat(2,minmax(0,1fr));}.downtown-place{min-height:100px;}}
 @media(max-width:600px){.worldmap{width:100%}.submap{min-height:320px}.house{border-width:2px}}
 </style>
@@ -88,7 +96,7 @@ function el(t,cls,text){let a=document.createElement(t);if(cls)a.className=cls;i
 function add(...items){screen.append(...items)}function center(){screen.className='center'}
 function panel(name,text,buttons){let p=el('section','panel');p.append(el('div','speaker',name),el('p','dialogue',text));let n=el('div','nav');buttons.forEach(x=>n.append(btn(x[0],x[1],x[2]||'primary')));p.append(n);return p}
 function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',symbol),el('div','hint',caption));return a}
-const downtownPlaces={bakery:'Bakery',square:'Town Square / Central Plaza',supermarket:'Supermarket',club:'The Club',hospital:'Hospital',mall:'Mall'};
+const downtownPlaces={hospital:'Hospital',studio:'Dance / Singing Studio',plaza:'Central Plaza',mall:'Mall',club:'Club',bakery:'Bakery'};
 const locations={home:{name:'Your mansion',symbol:'[ E ]',caption:'Your new home in Kpopville'},street:{name:'Town square',symbol:'[ ! ]',caption:'Everyone seems to be here'},cafe:{name:'Kpop café',symbol:'[ C ]',caption:'A café with questionable menu items'},neighbors:{name:'Other group’s house',symbol:'[ ? ]',caption:'The neighbors are suspiciously loud'}};
 function locationOpen(key){state.visited=[...new Set([...state.visited,key])];state.current=key;go('location')}
 function updateMission(){
@@ -121,9 +129,15 @@ let downtown=btn('Enter Downtown',()=>go('downtown'),'hotspot downtown');downtow
 add(m);add(el('p','map-caption','CLICK DOWNTOWN, BOYBORHOOD, OR GIRLBORHOOD'));
 }
 else if(state.scene==='downtown'){
-center();add(tag('Kpopville'),el('h1','big','DOWNTOWN'),el('p','lead','Where do you want to go?'));
-let list=el('div','downtown-list');Object.entries(downtownPlaces).forEach(([id,name])=>{list.append(btn(name,()=>{state.downtownPlace=id;go('downtown-place')},'downtown-place'))});
-add(list,btn('Back to Kpopville map',()=>go('map'),'secondary'));
+center();add(tag('Kpopville'),el('h1','big','DOWNTOWN'),el('p','lead','Click a place on your Downtown map.'));
+let m=el('div','downtownmap');let img=document.createElement('img');img.src='downtown-map.png';img.alt='Your hand-drawn Downtown map';m.append(img);
+[['dthospital','hospital','Hospital'],['dtstudio','studio','Dance / Singing Studio'],['dtplaza','plaza','Central Plaza'],['dtmall','mall','Mall'],['dtclub','club','Club'],['dtbakery','bakery','Bakery']].forEach(([cls,id,label])=>{
+ let b=btn(label,()=>{state.downtownPlace=id;go('downtown-place')},'hotspot '+cls);
+ b.setAttribute('aria-label','Enter '+label);
+ b.title='Enter '+label;
+ m.append(b);
+});
+add(m,el('p','map-caption','CLICK HOSPITAL, STUDIO, CENTRAL PLAZA, MALL, CLUB, OR BAKERY'),btn('Back to Kpopville map',()=>go('map'),'secondary'));
 }
 else if(state.scene==='downtown-place'){
 center();let name=downtownPlaces[state.downtownPlace]||'Downtown';
