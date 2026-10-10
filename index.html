@@ -89,15 +89,25 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
 @media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
+
+/* The first scene: three hand-drawn sprites and a rough dialogue box. */
+.square-scene{width:min(100%,1050px);display:flex;flex-direction:column;align-items:stretch;gap:0}
+.square-characters{width:100%;height:clamp(230px,48vh,430px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(5px,2vw,28px);border-bottom:3px solid black;background:white;overflow:hidden}
+.square-person{width:30%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
+.square-person.square-yn{height:70%;width:25%}
+.square-person.not-speaking{opacity:.55}
+.square-scene .panel{max-width:none;width:100%;margin:0}
+.square-place{font:900 16px Arial,sans-serif;text-transform:uppercase}
+@media(max-width:650px){.square-characters{height:270px}.square-person{width:34%}.square-person.square-yn{width:27%;height:70%}}
 </style>
 </head>
 <body>
-<div id="game"><aside id="mission" aria-live="polite"><strong>MISSION !!!</strong><p id="missionText"></p><small id="missionHint"></small></aside><main id="screen"></main><footer>MADE IN KPOPVILLE PAINT (sort of) // DEMO v0.5 <button class="reset" id="reset">Start over</button></footer></div>
+<div id="game"><aside id="mission" aria-live="polite"><strong>MISSION !!!</strong><p id="missionText"></p><small id="missionHint"></small></aside><main id="screen"></main><footer>MADE IN KPOPVILLE PAINT (sort of) // DEMO v0.7 <button class="reset" id="reset">Start over</button></footer></div>
 <script>
 const screen=document.getElementById('screen');
 const KEY='kpopville-demo-save-v1';
 let state={scene:'title',group:null,visited:[],area:'boys'};
-try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue','town-square'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
 function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
 function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
@@ -137,12 +147,53 @@ function showEnhypenDialogue(){
  box.append(nav);scene.append(portraits,box);
  add(tag('ENHYPEN HOUSE'),scene);
 }
+
+const recruitmentLines=[
+ {speaker:'NARRATOR',text:'The manager drops Y/N off in Central Plaza. A crowd of K-poppers immediately surrounds her.',yn:'scared'},
+ {speaker:'Y/N',text:'Um... why is everybody staring at me?',yn:'scared'},
+ {speaker:'SOOBIN',text:'Welcome to Kpopville! You should join TXT. We have five very normal guys and a basement.',yn:'default'},
+ {speaker:'JAY',text:'Hold on. ENHYPEN has seven members. Seven is obviously more than five.',yn:'default',jay:'default'},
+ {speaker:'SOOBIN',text:"That's not how choosing a family works.",yn:'default'},
+ {speaker:'JAY',text:'We also have a mansion. And I can make pancakes.',yn:'default',jay:'smile'},
+ {speaker:'SOOBIN',text:'He burns the pancakes. We have snacks that are edible.',yn:'blush'},
+ {speaker:'Y/N',text:'You guys are really fighting over me...?',yn:'blush'},
+ {speaker:'JAY',text:'So. What do you say? ENHYPEN?',yn:'default',jay:'smile'},
+ {speaker:'SOOBIN',text:'Or TXT? It is YOUR choice.',yn:'default'}
+];
+function showTownSquare(){
+ center();
+ const i=Math.max(0,Math.min(state.squareIndex||0,recruitmentLines.length));
+ const selecting=i===recruitmentLines.length;
+ const line=recruitmentLines[Math.min(i,recruitmentLines.length-1)];
+ const scene=el('section','square-scene');
+ const people=el('div','square-characters');
+ const specs=[['soobin.png','SOOBIN',''],[ynImages[line.yn]||ynImages.default,'Y/N','square-yn'],[line.jay==='smile'?'jay-smile.png':'jay-default.png','JAY','']];
+ specs.forEach(([src,name,cl])=>{
+   const img=document.createElement('img');img.src=src;img.alt=name;
+   img.className='square-person '+cl+(!selecting&&line.speaker!==name?' not-speaking':'');
+   people.append(img);
+ });
+ const box=el('div','panel');
+ box.append(el('div','speaker',selecting?'YOUR CHOICE':line.speaker));
+ box.append(el('p','dialogue',selecting?'Which group should Y/N join?':line.text));
+ if(!selecting)box.append(el('p','dialogue-progress',(i+1)+' / '+recruitmentLines.length));
+ const actions=el('div','nav');
+ if(selecting){
+  [['Join TXT','TXT'],['Join ENHYPEN','ENHYPEN']].forEach(([label,g])=>actions.append(btn(label,()=>{state.group=g;state.visited=[];go('arrival')},g==='TXT'?'secondary':'primary')));
+ }else{
+  actions.append(btn(i===recruitmentLines.length-1?'Choose a group >>':'Next >>',()=>{state.squareIndex=i+1;go('town-square')}));
+ }
+ box.append(actions);scene.append(people,box);
+ add(el('div','square-place','DOWNTOWN / CENTRAL PLAZA'),scene);
+}
+
 const locations={home:{name:'Your mansion',symbol:'[ E ]',caption:'Your new home in Kpopville'},street:{name:'Town square',symbol:'[ ! ]',caption:'Everyone seems to be here'},cafe:{name:'Kpop café',symbol:'[ C ]',caption:'A café with questionable menu items'},neighbors:{name:'Other group’s house',symbol:'[ ? ]',caption:'The neighbors are suspiciously loud'}};
 function locationOpen(key){state.visited=[...new Set([...state.visited,key])];state.current=key;go('location')}
 function updateMission(){
  const tasks={
  title:['Start your adventure','Press Start game.'],
- intro:['Survive the donation','Talk to Mom.'],
+ intro:['Arrive in Kpopville','Watch the donation introduction.'],
+ 'town-square':['Choose your group','Listen to Soobin and Jay, then make your choice.'],
  choose:['Choose a group','Pick TXT or ENHYPEN.'],
  arrival:['Arrive in Kpopville','Click Explore Kpopville.'],
  map:['Explore Kpopville','Click Boyborhood or Girlborhood on the map.'],
@@ -159,9 +210,10 @@ function updateMission(){
 }
 function render(){screen.replaceChildren();updateMission();
 if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
-else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','DRAW YOUR INTRO SCENE HERE'),panel('MOM','I have some news. I donated you to Kpopville.',[['YOU WHAT?!',()=>go('choose')],['Is this even legal?',()=>go('choose'),'secondary']]));}
-else if(state.scene==='choose'){center();add(tag('Your story, your choice'),el('h1','big','Who will take you in?'),el('p','lead','This changes your home and the characters you meet first.'));let c=el('div','choices');[['ENHYPEN','E'],['TXT','T']].forEach(([name,symbol])=>{let b=el('button','group');b.append(el('span','symbol',symbol),el('strong','',name),el('span','small','Choose this group'));b.onclick=()=>{state.group=name;state.visited=[];go('arrival')};c.append(b)});add(c);}
-else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('KPOPVILLE','DRAW THE CITY HERE'),panel('NARRATOR',`After an incredibly questionable journey, you arrive in Kpopville. The ${state.group} house is waiting for you.`,[['Explore Kpopville',()=>go('map')]]));}
+else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','YOUR FUTURE DONATION VIDEO GOES HERE'),panel('MOM','I donated you to Kpopville. The manager is waiting outside.',[['Continue to Town Square',()=>{state.squareIndex=0;go('town-square')}] ]));}
+else if(state.scene==='choose'){state.scene='town-square';render();}
+else if(state.scene==='town-square'){showTownSquare()}
+else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('KPOPVILLE','DRAW THE CITY HERE'),panel('NARRATOR',`After a very loud argument in Central Plaza, you chose ${state.group}. The group is ready to take you to their house.`,[['Explore Kpopville',()=>go('map')]]));}
 else if(state.scene==='map'){
 center();add(el('p','map-caption','CLICK A NEIGHBORHOOD TO ENTER IT'));
 let m=el('div','worldmap');let img=document.createElement('img');img.src='kpopville-map.png';img.alt='Your hand-drawn Kpopville map';m.append(img);
