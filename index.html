@@ -92,7 +92,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .portrait-row{display:flex;align-items:flex-end;justify-content:center;width:100%;height:min(52vh,420px);min-height:220px;gap:12px}
 .person-portrait{width:auto;height:100%;max-width:46%;object-fit:contain;object-position:bottom;transition:opacity .12s}
 .person-portrait.yn-portrait{height:82%;max-width:36%;align-self:flex-end}
-.person-portrait.inactive{filter:grayscale(1) brightness(.78);opacity:1}
+.person-portrait.inactive{filter:grayscale(.5) brightness(.89);opacity:1}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
 @media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
@@ -102,7 +102,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .square-characters{width:100%;height:clamp(230px,48vh,430px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(5px,2vw,28px);border-bottom:3px solid black;background:#ddd url("town-square-bg.png") center center / cover no-repeat;overflow:hidden}
 .square-person{width:30%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
 .square-person.square-yn{height:82%;width:27%}
-.square-person.not-speaking{filter:grayscale(1) brightness(.78);opacity:1}
+.square-person.not-speaking{filter:grayscale(.5) brightness(.89);opacity:1}
 .square-scene .panel{max-width:none;width:100%;margin:0}
 .square-place{font:900 16px Arial,sans-serif;text-transform:uppercase}
 /* Shared plaza artwork used both for recruiting and later visits. */
@@ -169,6 +169,44 @@ footer .reset{padding:2px 6px;font-size:11px}
  .panel{padding:6px}
  .primary,.secondary{padding:4px 8px;font-size:13px}
  .worldmap,.downtownmap{max-height:69dvh}
+}
+
+/* One large, consistent visual canvas for maps and cutscenes.
+   It scales with the viewport but never changes proportions between scenes. */
+#screen{
+ --canvas-width:min(calc(100vw - 252px), calc((100dvh - 115px) * 2048 / 1423), 1280px);
+ --canvas-height:calc(var(--canvas-width) * 1423 / 2048);
+}
+.worldmap,.downtownmap,.hoodmap,.plaza-view,
+.square-scene,.dialogue-scene{
+ width:var(--canvas-width);
+ height:var(--canvas-height);
+ min-height:0;
+ max-height:none;
+ max-width:100%;
+ flex:0 0 auto;
+ aspect-ratio:2048 / 1423;
+ margin-left:auto;
+ margin-right:auto;
+}
+.worldmap img,.downtownmap img,.hoodmap>img{width:100%;height:100%;display:block}
+/* Dialogue panel lives inside the same-size canvas, rather than expanding it. */
+.square-scene,.dialogue-scene{display:flex;flex-direction:column;overflow:hidden}
+.square-characters,.portrait-row{height:0;min-height:0;flex:1 1 auto}
+.square-scene>.panel,.dialogue-scene>.panel{flex:0 0 auto;max-height:43%;overflow:hidden}
+/* Screens with static placeholder art use the same overall space budget. */
+#screen:has(>.stage)>.stage{width:var(--canvas-width);height:calc(var(--canvas-height) * .62);min-height:0;flex:0 1 auto}
+#screen:has(>.stage)>.panel{width:var(--canvas-width);max-width:100%;}
+#screen:has(>.stage)>.tag,#screen:has(>.stage)>.big{flex:0 0 auto}
+#screen:has(>.stage)>.big{font-size:clamp(22px,4vh,48px)}
+@media(max-width:999px){
+ #screen{--canvas-width:min(calc(100vw - 20px),calc((100dvh - 150px) * 2048 / 1423));}
+}
+@media(max-height:620px){
+ #screen{--canvas-width:min(calc(100vw - 252px),calc((100dvh - 67px) * 2048 / 1423));}
+}
+@media(max-width:999px) and (max-height:620px){
+ #screen{--canvas-width:min(calc(100vw - 12px),calc((100dvh - 85px) * 2048 / 1423));}
 }
 </style>
 </head>
