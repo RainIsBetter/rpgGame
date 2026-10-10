@@ -93,6 +93,10 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .person-portrait{width:auto;height:100%;max-width:46%;object-fit:contain;object-position:bottom;transition:opacity .12s}
 .person-portrait.yn-portrait{height:82%;max-width:36%;align-self:flex-end}
 .person-portrait.inactive{filter:grayscale(.5) brightness(.89);opacity:1}
+
+.portrait-row.house-bg{background:url("enhypen-house-inside.png") center center / cover no-repeat;border:3px solid #000;border-bottom:none;padding:0 10px}
+.art-image-stage{padding:0;background:#ddd;overflow:hidden}
+.art-image-stage img{width:100%;height:100%;object-fit:cover;display:block}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
 @media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
@@ -227,6 +231,7 @@ function el(t,cls,text){let a=document.createElement(t);if(cls)a.className=cls;i
 function add(...items){screen.append(...items)}function center(){screen.className='center'}
 function panel(name,text,buttons){let p=el('section','panel');p.append(el('div','speaker',name),el('p','dialogue',text));let n=el('div','nav');buttons.forEach(x=>n.append(btn(x[0],x[1],x[2]||'primary')));p.append(n);return p}
 function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',symbol),el('div','hint',caption));return a}
+function imageStage(src,alt){let a=el('div','stage art-image-stage');let img=document.createElement('img');img.src=src;img.alt=alt||'';a.append(img);return a}
 const downtownPlaces={hospital:'Hospital',studio:'Dance / Singing Studio',plaza:'Central Plaza',mall:'Mall',club:'Club',bakery:'Bakery'};
 const enhypenDialogue=[
  {speaker:'Y/N',expression:'scared',text:'Um... hello? Is this the ENHYPEN house?'},
@@ -242,7 +247,7 @@ function showEnhypenDialogue(){
  const i=Math.max(0,Math.min(state.dialogueIndex||0,enhypenDialogue.length-1));
  const line=enhypenDialogue[i];
  const scene=el('div','dialogue-scene');
- const portraits=el('div','portrait-row');
+ const portraits=el('div','portrait-row house-bg');
  const yn=document.createElement('img');yn.className='person-portrait yn-portrait'+(line.speaker==='Y/N'?'':' inactive');
  yn.src=ynImages[line.expression];yn.alt='Y/N';
  const hoon=document.createElement('img');hoon.className='person-portrait'+(line.speaker==='HOON'?'':' inactive');
@@ -423,8 +428,16 @@ backButton.setAttribute('aria-label','Back to Kpopville main map');
 add(map,backButton);
 }
 else if(state.scene==='enhypen-dialogue'){showEnhypenDialogue()}
+
 else if(state.scene==='house'){
-center();add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+center();
+if(state.house==='TXT'){
+ add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR','You are outside the TXT house. This is where you can add an entry scene, door choice, or the start of a TXT storyline later.',[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+}else if(state.house==='ENHYPEN'){
+ add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-inside.png','ENHYPEN house interior'),panel('NARRATOR','You are inside the ENHYPEN house now. You can add more dialogue, room exploration, or another cutscene here later.',[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+}else{
+ add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+}
 }
 else if(state.scene==='location'){center();let key=state.current||'home',x=locations[key]||locations.home;add(tag(x.name),stage('???','YOUR DRAWING GOES HERE'));let line={home:`Welcome to the ${state.group} house! Your room is somewhere around here, probably.`,street:'The entire town is shaped like someone lost control of a K-pop-themed building simulator.',cafe:'BARISTA: Welcome! Our special today is an aggressively burnt pancake.',neighbors:`NEIGHBOR: Oh, you're staying with ${state.group}? Interesting. Very interesting.`}[key];add(panel(key==='cafe'?'BARISTA':key==='neighbors'?'NEIGHBOR':'NARRATOR',line,[['Back to map',()=>go('map')],['Talk again',()=>render(),'secondary']]));}
 }
