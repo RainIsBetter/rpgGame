@@ -255,11 +255,11 @@ function imageStage(src,alt){let a=el('div','stage art-image-stage');let img=doc
 const downtownPlaces={hospital:'Hospital',studio:'Dance / Singing Studio',plaza:'Central Plaza',mall:'Mall',club:'Club',bakery:'Bakery'};
 const enhypenDialogue=[
  {speaker:'Y/N',expression:'scared',text:'Um... hello? Is this the ENHYPEN house?'},
- {speaker:'HOON',expression:'scared',text:'Yeah. Why do you look like you just saw a ghost?'},
+ {speaker:'SUNGHOON',expression:'scared',text:'Yeah. Why do you look like you just saw a ghost?'},
  {speaker:'Y/N',expression:'default',text:'Oh. I just got here. Are you Sunghoon?'},
- {speaker:'HOON',expression:'default',text:'Yes. But you can call me Hoon.'},
- {speaker:'Y/N',expression:'blush',text:'O-oh! Okay, Hoon... nice to meet you.'},
- {speaker:'HOON',expression:'blush',text:'Nice to meet you too. Anyway, welcome to the house.'}
+ {speaker:'SUNGHOON',expression:'default',text:'Yes, I'm Sunghoon.'},
+ {speaker:'Y/N',expression:'blush',text:'O-oh! Nice to meet you, Sunghoon...'},
+ {speaker:'SUNGHOON',expression:'blush',text:'Nice to meet you too. Anyway, welcome to the house.'}
 ];
 const ynImages={scared:'yn-scared.png',default:'yn-default.png',blush:'yn-blush.png'};
 function showEnhypenDialogue(){
@@ -270,9 +270,9 @@ function showEnhypenDialogue(){
  const portraits=el('div','portrait-row house-bg');
  const yn=document.createElement('img');yn.className='person-portrait yn-portrait'+(line.speaker==='Y/N'?'':' inactive');
  yn.src=ynImages[line.expression];yn.alt='Y/N';
- const hoon=document.createElement('img');hoon.className='person-portrait'+(line.speaker==='HOON'?'':' inactive');
- hoon.src='hoon.png';hoon.alt='Hoon';
- portraits.append(yn,hoon);
+ const sunghoon=document.createElement('img');sunghoon.className='person-portrait'+(line.speaker==='SUNGHOON'?'':' inactive');
+ sunghoon.src='hoon.png';sunghoon.alt='Sunghoon';
+ portraits.append(yn,sunghoon);
  const box=el('section','panel');
  box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+enhypenDialogue.length));
  const nav=el('div','nav');
@@ -361,17 +361,17 @@ function updateMission(){
  'downtown-place':['Explore Downtown','Return to Downtown when you are ready.'],
  neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
- 'enhypen-dialogue':['Talk to Hoon','Finish your conversation.'],
+ 'enhypen-dialogue':['Talk to Sunghoon','Finish your conversation.'],
  park:['Photocard Park','Explore the park. Events will appear here later.'],
- gym:['Visit the Gym','Ask Hoon about workouts or choose an exercise.'],
+ gym:['Visit the Gym','Ask Sunghoon about workouts or choose an exercise.'],
  salon:['Visit Wonyoung at the Salon','Talk to Wonyoung or choose a beauty treatment.'],
  'txt-dialogue':['Talk to Soobin','Finish your conversation.'],
  location:['Explore this location','Return to the map when ready.']
  };
  let [objective,hint]=tasks[state.scene]||tasks.title;
  if(state.group && !['title','intro','town-square','choose'].includes(state.scene)){
-   if(state.introMissionDone){objective='MISSION COMPLETE!';hint='You spoke with '+(state.group==='TXT'?'Soobin':'Hoon')+'. Explore Kpopville!';}
-   else {objective='Talk to '+(state.group==='TXT'?'Soobin':'Hoon');hint='Go to Boyborhood → '+state.group+' house and finish the conversation.';}
+   if(state.introMissionDone){objective='MISSION COMPLETE!';hint='You spoke with '+(state.group==='TXT'?'Soobin':'Sunghoon')+'. Explore Kpopville!';}
+   else {objective='Talk to '+(state.group==='TXT'?'Soobin':'Sunghoon');hint='Go to Boyborhood → '+state.group+' house and finish the conversation.';}
  }
  document.getElementById('missionText').textContent=objective;
  document.getElementById('missionHint').textContent=hint;
@@ -393,7 +393,7 @@ function showActivity(place){
    art.append(bg);
  }
  if(place==='gym'){
-   let hoon=document.createElement('img');hoon.src='hoon.png';hoon.alt='Hoon working at the front desk';hoon.className='desk-person';art.append(hoon,el('div','desk-sign','HOON / FRONT DESK'));
+   let sunghoon=document.createElement('img');sunghoon.src='hoon.png';sunghoon.alt='Sunghoon working at the front desk';sunghoon.className='desk-person';art.append(sunghoon,el('div','desk-sign','SUNGHOON / FRONT DESK'));
  }else{
    if(place==='salon'){
      let wonyoung=document.createElement('img');wonyoung.src='wonyoung-default.png';wonyoung.alt='Wonyoung working at the front desk';wonyoung.className='desk-person';art.append(wonyoung,el('div','desk-sign','WONYOUNG / FRONT DESK'));
@@ -402,11 +402,11 @@ function showActivity(place){
    }
  }
  let controls=el('div','activity-controls');
- let msg=el('p','activity-message',place==='gym'?'Hoon: Welcome to the gym.':place==='salon'?'Wonyoung: Welcome to the salon!':'The park is quiet today.');
+ let msg=el('p','activity-message',place==='gym'?'Sunghoon: Welcome to the gym.':place==='salon'?'Wonyoung: Welcome to the salon!':'The park is quiet today.');
  controls.append(msg);
  function activityButton(name,response){controls.append(btn(name,()=>{msg.textContent=response},'secondary'))}
  if(place==='gym'){
-  activityButton('Talk to Hoon','Hoon: Want to work out, or are you just visiting?');
+  activityButton('Talk to Sunghoon','Sunghoon: Want to work out, or are you just visiting?');
   activityButton('Treadmill','Y/N tries running on the treadmill.');
   activityButton('Lift weights','Y/N does a few reps.');
   activityButton('Stretch','Y/N does some stretches.');
