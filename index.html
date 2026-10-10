@@ -59,9 +59,9 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .worldmap img{width:100%;height:100%;object-fit:cover;display:block}
 .hotspot{position:absolute;border:3px dashed transparent;background:transparent;cursor:pointer;color:transparent;box-shadow:none;padding:0}
 .hotspot:hover,.hotspot:focus-visible{border:3px dashed black;background:#ffffff55;outline:none}
-.hotspot.girl{left:17.5%;top:22.5%;width:23%;height:39%;border-radius:42%}
-.hotspot.boy{left:50.5%;top:16.5%;width:24%;height:31%;border-radius:42%}
-.hotspot.downtown{left:25%;top:46%;width:34%;height:21%;border-radius:45%}
+.hotspot.girl{left:22%;top:29%;width:16%;height:26%;border-radius:45%}
+.hotspot.boy{left:53%;top:20%;width:16%;height:22%;border-radius:45%}
+.hotspot.downtown{left:29%;top:47%;width:24%;height:15%;border-radius:45%}
 .map-caption{font-size:16px;font-weight:900;text-align:center}
 .hoodmap{position:relative;width:min(100%,1200px);aspect-ratio:2048 / 1423;margin:auto;overflow:hidden}
 .hoodmap img{width:100%;height:100%;object-fit:contain;display:block}
@@ -94,6 +94,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .person-portrait.yn-portrait{height:82%;max-width:36%;align-self:flex-end}
 .person-portrait.inactive{filter:grayscale(.5) brightness(.89);opacity:1}
 
+.portrait-row.txt-bg{background:url("txt-house-inside.png") center center / cover no-repeat;border:3px solid #000;border-bottom:none;padding:0 10px}
 .portrait-row.house-bg{background:url("enhypen-house-inside.png") center center / cover no-repeat;border:3px solid #000;border-bottom:none;padding:0 10px}
 .art-image-stage{padding:0;background:#ddd;overflow:hidden}
 .art-image-stage img{width:100%;height:100%;object-fit:cover;display:block}
@@ -222,8 +223,8 @@ footer .reset{padding:2px 6px;font-size:11px}
 <script>
 const screen=document.getElementById('screen');
 const KEY='kpopville-demo-save-v1';
-let state={scene:'title',group:null,visited:[],area:'boys'};
-try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue','town-square'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+let state={scene:'title',group:null,visited:[],area:'boys',introMissionDone:false};
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue','txt-dialogue','town-square'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
 function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
 function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
@@ -257,12 +258,35 @@ function showEnhypenDialogue(){
  box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+enhypenDialogue.length));
  const nav=el('div','nav');
  nav.append(btn(i===enhypenDialogue.length-1?'Finish':'Next >>',()=>{
-   if(i===enhypenDialogue.length-1)go('house');
+   if(i===enhypenDialogue.length-1){if(state.group==='ENHYPEN')state.introMissionDone=true;go('house');}
    else {state.dialogueIndex=i+1;go('enhypen-dialogue')}
  }));
  nav.append(btn('Leave house',()=>go('neighborhood'),'secondary'));
  box.append(nav);scene.append(portraits,box);
  add(tag('ENHYPEN HOUSE'),scene);
+}
+
+const txtDialogue=[
+ {speaker:'Y/N',expression:'scared',text:'Um... Soobin? Is this the TXT house?'},
+ {speaker:'SOOBIN',expression:'scared',text:'Yep! You made it. Welcome home.'},
+ {speaker:'Y/N',expression:'default',text:'I actually live here now?'},
+ {speaker:'SOOBIN',expression:'default',text:'You chose us in the square, remember? Come on in!'}
+];
+function showTxtDialogue(){
+ center();
+ const i=Math.max(0,Math.min(state.txtDialogueIndex||0,txtDialogue.length-1));
+ const line=txtDialogue[i];
+ const scene=el('div','dialogue-scene');
+ const portraits=el('div','portrait-row txt-bg');
+ const yn=document.createElement('img');yn.className='person-portrait yn-portrait'+(line.speaker==='Y/N'?'':' inactive');yn.src=ynImages[line.expression];yn.alt='Y/N';
+ const soobin=document.createElement('img');soobin.className='person-portrait'+(line.speaker==='SOOBIN'?'':' inactive');soobin.src='soobin.png';soobin.alt='Soobin';
+ portraits.append(yn,soobin);
+ const box=el('section','panel');box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+txtDialogue.length));
+ const nav=el('div','nav');nav.append(btn(i===txtDialogue.length-1?'Finish':'Next >>',()=>{
+   if(i===txtDialogue.length-1){if(state.group==='TXT')state.introMissionDone=true;go('house')}
+   else {state.txtDialogueIndex=i+1;go('txt-dialogue')}
+ }));nav.append(btn('Leave house',()=>go('neighborhood'),'secondary'));
+ box.append(nav);scene.append(portraits,box);add(tag('TXT HOUSE'),scene);
 }
 
 const recruitmentLines=[
@@ -296,7 +320,7 @@ function showTownSquare(){
  if(!selecting)box.append(el('p','dialogue-progress',(i+1)+' / '+recruitmentLines.length));
  const actions=el('div','nav');
  if(selecting){
-  [['Join TXT','TXT'],['Join ENHYPEN','ENHYPEN']].forEach(([label,g])=>actions.append(btn(label,()=>{state.group=g;state.visited=[];go('arrival')},g==='TXT'?'secondary':'primary')));
+  [['Join TXT','TXT'],['Join ENHYPEN','ENHYPEN']].forEach(([label,g])=>actions.append(btn(label,()=>{state.group=g;state.introMissionDone=false;state.visited=[];go('arrival')},g==='TXT'?'secondary':'primary')));
  }else{
   actions.append(btn(i===recruitmentLines.length-1?'Choose a group >>':'Next >>',()=>{state.squareIndex=i+1;go('town-square')}));
  }
@@ -318,10 +342,15 @@ function updateMission(){
  'downtown-place':['Explore Downtown','Return to Downtown when you are ready.'],
  neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
- 'enhypen-dialogue':['Talk to ENHYPEN','Click Next to continue the conversation.'],
+ 'enhypen-dialogue':['Talk to Hoon','Finish your conversation.'],
+ 'txt-dialogue':['Talk to Soobin','Finish your conversation.'],
  location:['Explore this location','Return to the map when ready.']
  };
  let [objective,hint]=tasks[state.scene]||tasks.title;
+ if(state.group && !['title','intro','town-square','choose'].includes(state.scene)){
+   if(state.introMissionDone){objective='MISSION COMPLETE!';hint='You spoke with '+(state.group==='TXT'?'Soobin':'Hoon')+'. Explore Kpopville!';}
+   else {objective='Talk to '+(state.group==='TXT'?'Soobin':'Hoon');hint='Go to Boyborhood → '+state.group+' house and finish the conversation.';}
+ }
  document.getElementById('missionText').textContent=objective;
  document.getElementById('missionHint').textContent=hint;
 }
@@ -419,7 +448,7 @@ groups.forEach((group,i)=>{
  const label=el('span','house-label',group.name);
  b.append(icon,label);
  if(group.unlocked){
-   b.onclick=()=>{state.house=group.name;if(group.name==='ENHYPEN'){state.dialogueIndex=0;go('enhypen-dialogue')}else{go('house')}};
+   b.onclick=()=>{state.house=group.name;if(group.name==='ENHYPEN'){state.dialogueIndex=0;go('enhypen-dialogue')}else if(group.name==='TXT'){state.house='TXT';go('house')}else{go('house')}};
  }
  map.append(b);
 });
@@ -428,11 +457,12 @@ backButton.setAttribute('aria-label','Back to Kpopville main map');
 add(map,backButton);
 }
 else if(state.scene==='enhypen-dialogue'){showEnhypenDialogue()}
+else if(state.scene==='txt-dialogue'){showTxtDialogue()}
 
 else if(state.scene==='house'){
 center();
 if(state.house==='TXT'){
- add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR','You are outside the TXT house. This is where you can add an entry scene, door choice, or the start of a TXT storyline later.',[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+ add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR','You are outside the TXT house. Click below to go inside and talk to Soobin.',[['Go inside / Talk to Soobin',()=>{state.txtDialogueIndex=0;go('txt-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else if(state.house==='ENHYPEN'){
  add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-inside.png','ENHYPEN house interior'),panel('NARRATOR','You are inside the ENHYPEN house now. You can add more dialogue, room exploration, or another cutscene here later.',[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
 }else{
