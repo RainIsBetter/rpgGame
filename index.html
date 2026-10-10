@@ -100,7 +100,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .portrait-row.txt-bg{background:url("txt-house-inside.png") center center / cover no-repeat;border:3px solid #000;border-bottom:none;padding:0 10px}
 .portrait-row.house-bg{background:url("enhypen-house-inside.png") center center / cover no-repeat;border:3px solid #000;border-bottom:none;padding:0 10px}
 .art-image-stage{padding:0;background:#ddd;overflow:hidden}
-.art-image-stage img{width:100%;height:100%;object-fit:cover;display:block}
+.art-image-stage img{width:100%;height:100%;object-fit:contain;display:block}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
 @media(max-width:680px){.portrait-row{height:260px;min-height:180px}.person-portrait{max-width:48%}.person-portrait.yn-portrait{max-width:40%;height:82%}.dialogue-scene .panel{min-width:0}}
@@ -525,7 +525,7 @@ groups.forEach((group,i)=>{
  const label=el('span','house-label',group.name);
  b.append(icon,label);
  if(group.unlocked){
-   b.onclick=()=>{state.house=group.name;if(group.name==='ENHYPEN'){state.dialogueIndex=0;go('enhypen-dialogue')}else if(group.name==='TXT'){state.house='TXT';go('house')}else{go('house')}};
+   b.onclick=()=>{state.house=group.name;if(group.name==='ENHYPEN'){go('house')}else if(group.name==='TXT'){state.house='TXT';go('house')}else{go('house')}};
  }
  map.append(b);
 });
@@ -541,7 +541,7 @@ center();
 if(state.house==='TXT'){
  add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR','You are outside the TXT house. Click below to go inside and talk to Soobin.',[['Go inside / Talk to Soobin',()=>{state.txtDialogueIndex=0;go('txt-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else if(state.house==='ENHYPEN'){
- add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-inside.png','ENHYPEN house interior'),panel('NARRATOR','You are inside the ENHYPEN house now. You can add more dialogue, room exploration, or another cutscene here later.',[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
+ add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-outside.png','ENHYPEN house exterior'),panel('NARRATOR','You are outside the ENHYPEN house. Go inside to talk to Sunghoon.',[['Go inside / Talk to Sunghoon',()=>{state.dialogueIndex=0;go('enhypen-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else{
  add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
 }
