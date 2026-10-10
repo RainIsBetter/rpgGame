@@ -84,6 +84,7 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .dialogue-scene{width:min(100%,1050px);display:flex;flex-direction:column;align-items:stretch;gap:0}
 .portrait-row{display:flex;align-items:flex-end;justify-content:space-around;width:100%;height:min(52vh,420px);min-height:220px;gap:8px}
 .person-portrait{width:47%;height:100%;object-fit:contain;object-position:bottom;transition:opacity .12s}
+.person-portrait.yn-portrait{height:70%;align-self:flex-end}
 .person-portrait.inactive{opacity:.62}
 .dialogue-scene .panel{max-width:none;width:100%;margin:0}
 .dialogue-progress{font:700 14px Arial,sans-serif;margin:0 0 12px}
@@ -120,7 +121,7 @@ function showEnhypenDialogue(){
  const line=enhypenDialogue[i];
  const scene=el('div','dialogue-scene');
  const portraits=el('div','portrait-row');
- const yn=document.createElement('img');yn.className='person-portrait'+(line.speaker==='Y/N'?'':' inactive');
+ const yn=document.createElement('img');yn.className='person-portrait yn-portrait'+(line.speaker==='Y/N'?'':' inactive');
  yn.src=ynImages[line.expression];yn.alt='Y/N';
  const hoon=document.createElement('img');hoon.className='person-portrait'+(line.speaker==='HOON'?'':' inactive');
  hoon.src='hoon.png';hoon.alt='Hoon';
