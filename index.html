@@ -44,6 +44,14 @@ button:active{background:#777;transform:translate(2px,2px);}
 footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sans-serif;}footer .reset{margin-left:16px;padding:4px 8px;font-size:12px;border-width:2px;}
 @media(max-width:560px){.top{padding:9px}.logo{font-size:25px}.small{font-size:11px}main{padding:22px 12px;gap:18px}.map{gap:16px}.place{min-height:155px}.group{min-height:190px}.group .symbol{font-size:52px}.panel{padding:12px}.primary,.secondary{padding:10px 14px}}
 
+/* Little mission note: deliberately plain, like an old browser game. */
+#mission{position:fixed;left:12px;top:16px;z-index:30;width:215px;background:#fff;border:3px solid #000;padding:10px;box-shadow:3px 3px 0 #999;font-family:"Comic Sans MS","Comic Sans",Arial,sans-serif;text-align:left;}
+#mission strong{display:block;font-size:20px;line-height:1.1;margin-bottom:8px;background:#ddd;padding:3px 5px;border:2px solid #000;}
+#missionText{font-size:16px;line-height:1.3;font-weight:700;margin:0;overflow-wrap:anywhere;}
+#mission small{display:block;font-size:12px;margin-top:8px;color:#444;}
+/* Leave room for the mission note on large screens without enclosing the game in a window. */
+@media(min-width:1000px){#screen{padding-left:235px;}}
+@media(max-width:999px){#mission{position:relative;top:auto;left:auto;align-self:flex-start;margin:10px 12px 0;width:min(300px,calc(100% - 24px));box-shadow:none;}#screen{padding-top:16px;}}
 /* Clickable hand-drawn maps, intentionally plain. */
 .worldmap{position:relative;width:min(100%,calc(83vh * 2048 / 1423),1200px);aspect-ratio:2048 / 1423;margin:auto;}
 .worldmap img{width:100%;height:100%;object-fit:contain;display:block}
@@ -51,21 +59,28 @@ footer{background:#fff;padding:8px 14px;text-align:center;font:700 13px Arial,sa
 .hotspot:hover,.hotspot:focus-visible{border:3px dashed black;background:#ffffff55;outline:none}
 .hotspot.girl{left:6%;top:23%;width:24%;height:44%;border-radius:42%}
 .hotspot.boy{left:50%;top:7%;width:26%;height:35%;border-radius:42%}
+.hotspot.downtown{left:17%;top:53%;width:40%;height:23%;border-radius:45%}
 .map-caption{font-size:16px;font-weight:900;text-align:center}
 .submap{position:relative;width:min(100%,950px);height:min(58vh,540px);min-height:360px;border:4px solid #000;background:#fff;overflow:hidden}
 .road{position:absolute;background:#bbb;border:3px solid #000}.road.horizontal{top:44%;height:15%;left:0;right:0}.road.vertical{left:45%;width:11%;top:0;bottom:0}
 .house{position:absolute;width:26%;height:28%;background:#ccc;border:4px solid black;font-weight:900;font-size:clamp(13px,2.2vw,25px);padding:5px;white-space:normal}
 .house:hover{background:#a7bde3}.house.one{left:8%;top:6%}.house.two{right:8%;top:6%}.house.three{left:8%;bottom:6%}.house.four{right:8%;bottom:6%}
+/* Downtown: ugly old-school browser buttons, no polished cards. */
+.downtown-list{width:min(100%,840px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.downtown-place{background:#d3d3d3;border:4px solid #000;border-radius:0;font:900 clamp(16px,2.4vw,27px) "Comic Sans MS",Arial,sans-serif;min-height:125px;padding:12px 8px;overflow-wrap:anywhere;}
+.downtown-place:nth-child(even){background:#b0c4e6;}
+.downtown-place:hover{background:#b5c9e6;}
+@media(max-width:700px){.downtown-list{grid-template-columns:repeat(2,minmax(0,1fr));}.downtown-place{min-height:100px;}}
 @media(max-width:600px){.worldmap{width:100%}.submap{min-height:320px}.house{border-width:2px}}
 </style>
 </head>
 <body>
-<div id="game"><main id="screen"></main><footer>MADE IN KPOPVILLE PAINT (sort of) // DEMO v0.4 <button class="reset" id="reset">Start over</button></footer></div>
+<div id="game"><aside id="mission" aria-live="polite"><strong>MISSION !!!</strong><p id="missionText"></p><small id="missionHint"></small></aside><main id="screen"></main><footer>MADE IN KPOPVILLE PAINT (sort of) // DEMO v0.5 <button class="reset" id="reset">Start over</button></footer></div>
 <script>
 const screen=document.getElementById('screen');
 const KEY='kpopville-demo-save-v1';
 let state={scene:'title',group:null,visited:[],area:'boys'};
-try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
 function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
 function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
@@ -73,9 +88,27 @@ function el(t,cls,text){let a=document.createElement(t);if(cls)a.className=cls;i
 function add(...items){screen.append(...items)}function center(){screen.className='center'}
 function panel(name,text,buttons){let p=el('section','panel');p.append(el('div','speaker',name),el('p','dialogue',text));let n=el('div','nav');buttons.forEach(x=>n.append(btn(x[0],x[1],x[2]||'primary')));p.append(n);return p}
 function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',symbol),el('div','hint',caption));return a}
+const downtownPlaces={bakery:'Bakery',square:'Town Square / Central Plaza',supermarket:'Supermarket',club:'The Club',hospital:'Hospital',mall:'Mall'};
 const locations={home:{name:'Your mansion',symbol:'[ E ]',caption:'Your new home in Kpopville'},street:{name:'Town square',symbol:'[ ! ]',caption:'Everyone seems to be here'},cafe:{name:'Kpop café',symbol:'[ C ]',caption:'A café with questionable menu items'},neighbors:{name:'Other group’s house',symbol:'[ ? ]',caption:'The neighbors are suspiciously loud'}};
 function locationOpen(key){state.visited=[...new Set([...state.visited,key])];state.current=key;go('location')}
-function render(){screen.replaceChildren();
+function updateMission(){
+ const tasks={
+ title:['Start your adventure','Press Start game.'],
+ intro:['Survive the donation','Talk to Mom.'],
+ choose:['Choose a group','Pick TXT or ENHYPEN.'],
+ arrival:['Arrive in Kpopville','Click Explore Kpopville.'],
+ map:['Explore Kpopville','Click Boyborhood or Girlborhood on the map.'],
+ downtown:['Explore Downtown','Choose a location to visit.'],
+ 'downtown-place':['Explore Downtown','Return to Downtown when you are ready.'],
+ neighborhood:['Visit a house','Click a house in '+(state.area==='girls'?'Girlborhood.':'Boyborhood.')],
+ house:['Look around the house','Go back to the neighborhood when you are done.'],
+ location:['Explore this location','Return to the map when ready.']
+ };
+ let [objective,hint]=tasks[state.scene]||tasks.title;
+ document.getElementById('missionText').textContent=objective;
+ document.getElementById('missionHint').textContent=hint;
+}
+function render(){screen.replaceChildren();updateMission();
 if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
 else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','DRAW YOUR INTRO SCENE HERE'),panel('MOM','I have some news. I donated you to Kpopville.',[['YOU WHAT?!',()=>go('choose')],['Is this even legal?',()=>go('choose'),'secondary']]));}
 else if(state.scene==='choose'){center();add(tag('Your story, your choice'),el('h1','big','Who will take you in?'),el('p','lead','This changes your home and the characters you meet first.'));let c=el('div','choices');[['ENHYPEN','E'],['TXT','T']].forEach(([name,symbol])=>{let b=el('button','group');b.append(el('span','symbol',symbol),el('strong','',name),el('span','small','Choose this group'));b.onclick=()=>{state.group=name;state.visited=[];go('arrival')};c.append(b)});add(c);}
@@ -84,7 +117,17 @@ else if(state.scene==='map'){
 center();add(el('p','map-caption','CLICK A NEIGHBORHOOD TO ENTER IT'));
 let m=el('div','worldmap');let img=document.createElement('img');img.src='kpopville-map.png';img.alt='Your hand-drawn Kpopville map';m.append(img);
 [['girl','girls','Girlborhood'],['boy','boys','Boyborhood']].forEach(([cls,area,label])=>{let b=btn(label,()=>{state.area=area;go('neighborhood')},'hotspot '+cls);b.setAttribute('aria-label','Enter '+label);b.title='Enter '+label;m.append(b)});
-add(m);add(el('p','map-caption','OTHER LOCATIONS WILL BE CLICKABLE LATER'));
+let downtown=btn('Enter Downtown',()=>go('downtown'),'hotspot downtown');downtown.setAttribute('aria-label','Enter Downtown');downtown.title='Enter Downtown';m.append(downtown);
+add(m);add(el('p','map-caption','CLICK DOWNTOWN, BOYBORHOOD, OR GIRLBORHOOD'));
+}
+else if(state.scene==='downtown'){
+center();add(tag('Kpopville'),el('h1','big','DOWNTOWN'),el('p','lead','Where do you want to go?'));
+let list=el('div','downtown-list');Object.entries(downtownPlaces).forEach(([id,name])=>{list.append(btn(name,()=>{state.downtownPlace=id;go('downtown-place')},'downtown-place'))});
+add(list,btn('Back to Kpopville map',()=>go('map'),'secondary'));
+}
+else if(state.scene==='downtown-place'){
+center();let name=downtownPlaces[state.downtownPlace]||'Downtown';
+add(tag('Downtown'),el('h1','big',name),stage('[ '+name.toUpperCase()+' ]','YOUR '+name.toUpperCase()+' DRAWING GOES HERE'),panel('NARRATOR','You are at the '+name+'. This location is a placeholder until you add your art and story.',[['Back to Downtown',()=>go('downtown')],['Kpopville map',()=>go('map'),'secondary']]));
 }
 else if(state.scene==='neighborhood'){
 center();let girls=state.area==='girls';add(el('h1','big',girls?'GIRLBORHOOD':'BOYBORHOOD'));
