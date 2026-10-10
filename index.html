@@ -1,19 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My First Game</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kpopville: Demo</title>
+<style>
+:root{--ink:#242235;--muted:#6e6880;--pink:#ee8eae;--bg:#fdf5f7;--line:#e9dce7}*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#fff3f7,#f5f1ff);color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;min-height:100vh;display:grid;place-items:center;padding:18px}button{font:inherit;cursor:pointer}#game{width:min(920px,100%);min-height:600px;background:#fffafa;border:2px solid #eed9e4;border-radius:20px;box-shadow:0 18px 60px #a36a8d25;overflow:hidden;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;align-items:center;padding:13px 22px;background:#fff;border-bottom:1px solid var(--line);gap:12px}.logo{font-size:21px;font-weight:900;letter-spacing:-1px}.small{color:var(--muted);font-size:12px}.reset{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;color:var(--muted)}main{flex:1;display:flex;flex-direction:column;padding:25px;gap:20px}.center{align-items:center;justify-content:center;text-align:center}.tag{font-size:12px;letter-spacing:2px;font-weight:900;color:#c36f9a;text-transform:uppercase}.big{font-size:clamp(35px,6vw,60px);line-height:1.06;margin:8px 0;letter-spacing:-2px}.lead{max-width:580px;line-height:1.6;color:var(--muted)}.primary,.secondary{padding:13px 21px;border-radius:13px;border:0;font-weight:800}.primary{background:#e982a5;color:#fff;box-shadow:0 5px 0 #d96f95}.primary:hover{background:#dd7099}.secondary{background:#fff;border:2px solid #ecd7e3;color:#6d5370}.choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}.panel{background:#fff;border:2px solid var(--line);border-radius:16px;padding:18px;max-width:690px;width:100%;text-align:left}.speaker{font-size:12px;font-weight:900;color:#c36f9a;letter-spacing:1px;margin-bottom:8px}.dialogue{font-size:21px;line-height:1.5;margin:0 0 18px}.stage{width:100%;max-width:690px;min-height:210px;background:#f5e7ed;border:2px dashed #daaac4;border-radius:17px;display:grid;place-items:center;position:relative;overflow:hidden}.stage .art{font-size:76px}.stage .hint{font-size:12px;color:#916d83;position:absolute;bottom:10px}.group{width:210px;min-height:180px;border:2px solid var(--line);background:#fff;border-radius:17px;padding:22px 13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.group:hover,.place:hover{border-color:#e982a5;transform:translateY(-3px)}.group .symbol{font-size:56px}.group strong{font-size:23px}.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;max-width:690px;width:100%}.place{border:2px solid var(--line);border-radius:17px;min-height:158px;background:white;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transition:.14s}.place .symbol{font-size:45px}.place strong{font-size:18px}.place span:last-child{font-size:12px;color:var(--muted)}.place.locked{opacity:.55;cursor:not-allowed}.nav{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.footer{padding:10px 20px;text-align:center;color:#95859a;font-size:12px;border-top:1px solid var(--line)}@media(max-width:550px){main{padding:18px}.map{gap:9px}.place{min-height:135px}.group{width:43%;min-height:165px}.dialogue{font-size:18px}}
+</style>
 </head>
 <body>
-  <button id="winButton">Click me!</button>
-
-  <script>
-    document.getElementById("winButton").addEventListener("click", function () {
-      document.body.innerHTML = "<h1>You win!</h1>";
-    });
-  </script>
-</body>
-</html>
-  
+<div id="game"><header class="top"><div><div class="logo">KPOPVILLE <span style="color:#e982a5">✦</span></div><div class="small" id="chapter">A tiny playable prototype</div></div><button class="reset" id="reset">Start over</button></header><main id="screen"></main><footer>Prototype v0.1 · Your future drawings can replace every placeholder</footer></div>
+<script>
+const screen=document.getElementById('screen'), chapter=document.getElementById('chapter');
+const KEY='kpopville-demo-save-v1';
+let state={scene:'title',group:null,visited:[]};
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','location'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
+function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
+function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
+function el(t,cls,text){let a=document.createElement(t);if(cls)a.className=cls;if(text!==undefined)a.textContent=text;return a}
+function add(...items){screen.append(...items)}function center(){screen.className='center'}
+function panel(name,text,buttons){let p=el('section','panel');p.append(el('div','speaker',name),el('p','dialogue',text));let n=el('div','nav');buttons.forEach(x=>n.append(btn(x[0],x[1],x[2]||'primary')));p.append(n);return p}
+function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',symbol),el('div','hint',caption));return a}
+const locations={home:{name:'Your mansion',symbol:'🏠',caption:'Your new home in Kpopville'},street:{name:'Town square',symbol:'⛲',caption:'Everyone seems to be here'},cafe:{name:'Kpop café',symbol:'☕',caption:'A café with questionable menu items'},neighbors:{name:'Other group’s house',symbol:'🎵',caption:'The neighbors are suspiciously loud'}};
+function locationOpen(key){state.visited=[...new Set([...state.visited,key])];state.current=key;go('location')}
+function render(){screen.replaceChildren();chapter.textContent=state.scene==='title'?'A tiny playable prototype':state.scene==='intro'?'Prologue':state.scene==='choose'?'Choose your path':state.scene==='arrival'?'Welcome to Kpopville':state.scene==='map'?'Explore Kpopville':'Exploring';
+if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
+else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('📦','PLACEHOLDER: Draw Y/N’s house and Mom here'),panel('MOM','I have some news. I donated you to Kpopville.',[['YOU WHAT?!',()=>go('choose')],['Is this even legal?',()=>go('choose'),'secondary']]));}
+else if(state.scene==='choose'){center();add(tag('Your story, your choice'),el('h1','big','Who will take you in?'),el('p','lead','This changes your home and the characters you meet first.'));let c=el('div','choices');[['ENHYPEN','🌙'],['TXT','⭐']].forEach(([name,symbol])=>{let b=el('button','group');b.append(el('span','symbol',symbol),el('strong','',name),el('span','small','Choose this group'));b.onclick=()=>{state.group=name;state.visited=[];go('arrival')};c.append(b)});add(c);}
+else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('🏘️','PLACEHOLDER: Your illustrated Kpopville skyline'),panel('NARRATOR',`After an incredibly questionable journey, you arrive in Kpopville. The ${state.group} house is waiting for you.`,[['Explore Kpopville',()=>go('map')]]));}
+else if(state.scene==='map'){center();add(tag(`Living with ${state.group||'???'}`),el('h1','big','Kpopville Map'),el('p','lead','Click a location to visit it. Your progress is saved automatically in this browser.'));let grid=el('div','map');Object.entries(locations).forEach(([key,x])=>{let b=el('button','place');b.append(el('span','symbol',x.symbol),el('strong','',x.name),el('span','',state.visited.includes(key)?'Visited · Click to return':'Click to explore'));b.onclick=()=>locationOpen(key);grid.append(b)});add(grid);}
+else if(state.scene==='location'){center();let key=state.current||'home',x=locations[key]||locations.home;add(tag(x.name),stage(x.symbol,'PLACEHOLDER: Your custom background artwork'));let line={home:`Welcome to the ${state.group} house! Your room is somewhere around here, probably.`,street:'The entire town is shaped like someone lost control of a K-pop-themed building simulator.',cafe:'BARISTA: Welcome! Our special today is an aggressively burnt pancake.',neighbors:`NEIGHBOR: Oh, you're staying with ${state.group}? Interesting. Very interesting.`}[key];add(panel(key==='cafe'?'BARISTA':key==='neighbors'?'NEIGHBOR':'NARRATOR',line,[['Back to map',()=>go('map')],['Talk again',()=>render(),'secondary']]));}
+}
+document.getElementById('reset').onclick=()=>{if(confirm('Restart the demo and erase your saved choice?')){localStorage.removeItem(KEY);state={scene:'title',group:null,visited:[]};render()}};render();
+</script>
+</body></html>
