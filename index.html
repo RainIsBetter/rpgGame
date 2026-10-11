@@ -248,6 +248,20 @@ footer .reset{padding:2px 6px;font-size:11px}
 .enhypen-portrait-pair img{height:100%;max-width:46%;min-width:0;object-fit:contain;object-position:bottom}
 .enhypen-portrait-pair .yn{height:82%;max-width:34%}
 .enhypen-portrait-pair .inactive{filter:grayscale(.5) brightness(.9);opacity:1}
+
+/* Donation prologue: hand-drawn story frames, no scrolling. */
+.donation-scene{width:var(--canvas-width);height:var(--canvas-height);max-width:100%;display:flex;flex-direction:column;min-height:0;overflow:hidden;margin:auto}
+.donation-art{position:relative;flex:1 1 0;min-height:0;border:3px solid #000;border-bottom:0;overflow:hidden;background:#c8c4c0 center / cover no-repeat}
+.donation-art.home{background-image:url('yn-moms-house.png')}
+.donation-art.outside{background-image:url('kpopville-outside.png');background-size:contain;background-color:#c5e7ee}
+.donation-character{position:absolute;bottom:0;height:91%;width:auto;max-width:43%;object-fit:contain;object-position:bottom;filter:drop-shadow(1px 2px 0 #0004)}
+.donation-character.yn{left:8%;height:77%;max-width:31%}
+.donation-character.mom{right:12%;height:92%;max-width:43%}
+.donation-character.driver{right:12%;height:91%;max-width:43%}
+.donation-character.inactive{filter:grayscale(.5) brightness(.9)}
+.donation-scene>.panel{width:100%;max-width:none;max-height:46%;flex:0 0 auto;overflow:hidden}
+.donation-skip{position:fixed;top:14px;right:15px;z-index:60;background:#b8c8e7;border:3px solid #000;font:900 clamp(13px,1.5vw,18px) 'Comic Sans MS',Arial,sans-serif;padding:7px 12px}
+@media(max-width:600px){.donation-skip{top:7px;right:7px;padding:5px 8px}.donation-character.yn{left:3%}.donation-character.mom,.donation-character.driver{right:4%}}
 </style>
 </head>
 <body>
@@ -344,6 +358,37 @@ function showTxtDialogue(){
    else {state.txtDialogueIndex=i+1;go('txt-dialogue')}
  }));nav.append(btn('Leave house',()=>go('neighborhood'),'secondary'));
  box.append(nav);scene.append(portraits,box);add(tag('TXT HOUSE'),scene);
+}
+
+
+// Donation and shipping prologue. The opening plaza dialogue stays unchanged.
+const donationLines=[
+ {speaker:'NARRATOR',text:'One perfectly normal afternoon, Y/N is at home with her mom.',where:'home',who:'mom',mood:'neutral',yn:'default'},
+ {speaker:'MOM',text:'Y/N! Come here. I have some exciting news.',where:'home',who:'mom',mood:'neutral',yn:'default'},
+ {speaker:'Y/N',text:'Did you buy me concert tickets?!',where:'home',who:'mom',mood:'neutral',yn:'blush'},
+ {speaker:'MOM',text:'Even better. I donated you to Kpopville!',where:'home',who:'mom',mood:'neutral',yn:'scared'},
+ {speaker:'Y/N',text:'YOU DID WHAT?!?',where:'home',who:'mom',mood:'mad',yn:'scared'},
+ {speaker:'MOM',text:'No complaining! The UPS guy is already here to pick you up.',where:'home',who:'mom',mood:'mad',yn:'scared'},
+ {speaker:'NARRATOR',text:'DING DONG! Someone is at the door...',where:'home',who:'driver',yn:'scared'},
+ {speaker:'UPS DRIVER',text:'Package pickup for Kpopville! Is Y/N ready to ship?',where:'home',who:'driver',yn:'scared'},
+ {speaker:'Y/N',text:'I AM NOT A PACKAGE!',where:'home',who:'driver',yn:'scared'},
+ {speaker:'MOM',text:'She is! No returns, please.',where:'home',who:'mom',mood:'mad',yn:'scared'},
+ {speaker:'UPS DRIVER',text:'Great! Next stop: the most musical place on Earth.',where:'home',who:'driver',yn:'scared'},
+ {speaker:'NARRATOR',text:'And just like that, Y/N is shipped off to Kpopville...',where:'outside',who:'driver',yn:'scared'},
+ {speaker:'Y/N',text:'Wait... is that Kpopville?!',where:'outside',who:'driver',yn:'scared'},
+ {speaker:'UPS DRIVER',text:'Delivery complete! Welcome to Kpopville.',where:'outside',who:'driver',yn:'default'}
+];
+function finishDonation(){state.squareIndex=0;go('town-square')}
+function showDonation(){
+ center();const i=Math.max(0,Math.min(state.donationIndex||0,donationLines.length-1));const line=donationLines[i];
+ const skip=btn('SKIP INTRO >>',finishDonation,'donation-skip');skip.setAttribute('aria-label','Skip donation scene and go to Central Plaza');add(skip);
+ const scene=el('section','donation-scene');const art=el('div','donation-art '+line.where);
+ const yn=document.createElement('img');yn.src=ynImages[line.yn]||ynImages.default;yn.alt='Y/N';yn.className='donation-character yn'+(line.speaker==='Y/N'?'':' inactive');
+ const actor=document.createElement('img');actor.src=line.who==='mom'?(line.mood==='mad'?'mom-mad.png':'mom-neutral.png'):'ups-driver.png';actor.alt=line.who==='mom'?'Mom':'UPS driver';actor.className='donation-character '+line.who+(line.speaker!==(line.who==='mom'?'MOM':'UPS DRIVER')?' inactive':'');
+ art.append(yn,actor);
+ const box=el('section','panel');box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+donationLines.length));
+ const nav=el('div','nav');nav.append(btn(i===donationLines.length-1?'Arrive at Central Plaza >>':'Next >>',()=>{if(i===donationLines.length-1)finishDonation();else{state.donationIndex=i+1;go('intro')}}));box.append(nav);
+ scene.append(art,box);add(tag('PROLOGUE / SPECIAL DELIVERY'),scene);
 }
 
 const recruitmentLines=[
@@ -474,8 +519,8 @@ function showActivity(place){
  box.append(art,controls);add(box);
 }
 function render(){screen.replaceChildren();updateMission();
-if(state.scene==='title'){center();add(tag('wowza'),el('h1','big','Welcome to Kpopville'),el('p','lead','A super cool donated adventure'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
-else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','YOUR FUTURE DONATION VIDEO GOES HERE'),panel('MOM','I donated you to Kpopville. The manager is waiting outside.',[['Continue to Town Square',()=>{state.squareIndex=0;go('town-square')}] ]));}
+if(state.scene==='title'){center();add(tag('wowza'),el('h1','big','Welcome to Kpopville'),el('p','lead','A super cool donated adventure'));add(btn('Start game',()=>{state.donationIndex=0;go('intro')}));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
+else if(state.scene==='intro'){showDonation();}
 else if(state.scene==='choose'){state.scene='town-square';render();}
 else if(state.scene==='town-square'){showTownSquare()}
 else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('KPOPVILLE','DRAW THE CITY HERE'),panel('NARRATOR',`After a very loud argument in Central Plaza, you chose ${state.group}. The group is ready to take you to their house.`,[['Explore Kpopville',()=>go('map')]]));}
