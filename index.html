@@ -275,7 +275,7 @@ const enhypenDialogue=[
  {speaker:'JUNGWON',expression:'default',text:'Yep! I am Jungwon. Welcome to ENHYPEN. We heard you chose us.'},
  {speaker:'HEESEUNG',expression:'default',text:'I am Heeseung. Do not worry, we are mostly normal.'},
  {speaker:'JAY',expression:'default',text:'I told you our mansion was better. Welcome home.'},
- {speaker:'JAKE',expression:'default',text:'Hey! I am Jake. We saved you a spot.'},
+ {speaker:'JAKE',expression:'default',jake:'happy',text:'Hey! I am Jake. We saved you a spot.'},
  {speaker:'SUNGHOON',expression:'default',text:'Sunghoon. You will get used to the noise eventually.'},
  {speaker:'SUNOO',expression:'blush',text:'I am Sunoo! Finally, someone new to talk to!'},
  {speaker:'NI-KI',expression:'default',text:'And I am Ni-ki. Are you any good at dancing?'},
@@ -287,7 +287,7 @@ const enhypenMembers=[
  {name:'JUNGWON',img:'jungwon.png'},
  {name:'HEESEUNG',img:'heeseung.png'},
  {name:'JAY',img:'jay-default.png'},
- {name:'JAKE',img:null},
+ {name:'JAKE',img:'jake-neutral.png'},
  {name:'SUNGHOON',img:'hoon.png'},
  {name:'SUNOO',img:'sunoo.png'},
  {name:'NI-KI',img:'niki.png'}
@@ -312,7 +312,7 @@ function showEnhypenDialogue(){
  focus.append(yn);
  if(line.speaker!=='Y/N'){
    const member=enhypenMembers.find(item=>item.name===line.speaker);
-   if(member?.img){const pic=document.createElement('img');pic.src=member.img;pic.alt=line.speaker;pic.className='enhypen-focus-person member';focus.append(pic);}
+   if(member?.img){const pic=document.createElement('img');pic.src=member.name==='JAKE'&&line.jake==='happy'?'jake-happy.png':member.img;pic.alt=line.speaker;pic.className='enhypen-focus-person member';focus.append(pic);}
    else focus.append(el('div','enhypen-focus-placeholder','JAKE\n(SPRITE COMING LATER)'));
  }
  stage.append(roster,focus);
