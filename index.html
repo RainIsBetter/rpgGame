@@ -347,25 +347,30 @@ function showTxtDialogue(){
 }
 
 const recruitmentLines=[
- {speaker:'NARRATOR',text:'The manager drops Y/N off in Central Plaza. A crowd of K-poppers immediately surrounds her.',yn:'scared'},
- {speaker:'Y/N',text:'Um... why is everybody staring at me?',yn:'scared'},
- {speaker:'SOOBIN',text:'Welcome to Kpopville! You should join TXT. We have five very normal guys and a basement.',yn:'default'},
- {speaker:'JUNGWON',text:'Hold on. ENHYPEN has seven members. Seven is obviously more than five.',yn:'default'},
- {speaker:'SOOBIN',text:"That's not how choosing a family works.",yn:'default'},
- {speaker:'JUNGWON',text:'We also have a mansion. And I can make sure everyone behaves.',yn:'default'},
- {speaker:'SOOBIN',text:'You can barely keep this argument under control. We have snacks, at least.',yn:'blush'},
- {speaker:'Y/N',text:'You guys are really fighting over me...?',yn:'blush'},
- {speaker:'JUNGWON',text:'So. What do you say? ENHYPEN?',yn:'default'},
- {speaker:'SOOBIN',text:'Or TXT? It is YOUR choice.',yn:'default'}
+ {speaker:'NARRATOR',text:'The UPS driver drops Y/N off in the Central Plaza. A crowd of kpoppers immediately surrounded her.',yn:'scared'},
+ {speaker:'Y/N',text:'ehhh? Where am I? What is this place? Who are these people!?!',yn:'scared'},
+ {speaker:'SOOBIN',text:'youre in kpopville!',yn:'default'},
+ {speaker:'JUNGWON',text:'the most musical place on earth!',yn:'default'},
+ {speaker:'Y/N',text:'wait a second! Soobin? Jungwon?',yn:'scared'},
+ {speaker:'JUNGWON',text:'thats us!',yn:'default'},
+ {speaker:'SOOBIN',text:'and we’re here to get you to join txt, me and the other tomorrows would love to have you around',yn:'default'},
+ {speaker:'JUNGWON',text:'uh no you should join enhypen, the hyphens are way cooler than the tomorrows, soobin doesnt even wear pants. come join us in our mansion',yn:'default'},
+ {speaker:'SOOBIN',text:'oh shut up, id like to see you eat a watermelon in 3 seconds',yn:'default'},
+ {speaker:'Y/N',text:"oh wow! Who should I choose!!! They're both so handsome!",yn:'blush'}
 ];
+const recruitmentResponses={
+ TXT:{speaker:'SOOBIN',text:'good choice y/n, meet me back at the tomorrow tower. Id like to introduce you to the other tomorrows ;)'},
+ ENHYPEN:{speaker:'JUNGWON',text:'im so glad you chose us y/n!, follow me back to the hyphen mansion, i wanna introduce you to the other hyphens!'}
+};
 function showTownSquare(){
  center();
- const i=Math.max(0,Math.min(state.squareIndex||0,recruitmentLines.length));
+ const i=Math.max(0,Math.min(state.squareIndex||0,recruitmentLines.length+1));
  const selecting=i===recruitmentLines.length;
- const line=recruitmentLines[Math.min(i,recruitmentLines.length-1)];
+ const confirmed=i>recruitmentLines.length && !!recruitmentResponses[state.group];
+ const line=confirmed?recruitmentResponses[state.group]:recruitmentLines[Math.min(i,recruitmentLines.length-1)];
  const scene=el('section','square-scene');
  const people=el('div','square-characters');
- const specs=[['soobin.png','SOOBIN',''],[ynImages[line.yn]||ynImages.default,'Y/N','square-yn'],['jungwon.png','JUNGWON','']];
+ const specs=[['soobin.png','SOOBIN',''],[ynImages[confirmed?'blush':line.yn]||ynImages.default,'Y/N','square-yn'],['jungwon.png','JUNGWON','']];
  specs.forEach(([src,name,cl])=>{
    const img=document.createElement('img');img.src=src;img.alt=name;
    img.className='square-person '+cl+(!selecting&&line.speaker!==name?' not-speaking':'');
@@ -374,10 +379,12 @@ function showTownSquare(){
  const box=el('div','panel');
  box.append(el('div','speaker',selecting?'YOUR CHOICE':line.speaker));
  box.append(el('p','dialogue',selecting?'Which group should Y/N join?':line.text));
- if(!selecting)box.append(el('p','dialogue-progress',(i+1)+' / '+recruitmentLines.length));
+ if(!selecting&&!confirmed)box.append(el('p','dialogue-progress',(i+1)+' / '+recruitmentLines.length));
  const actions=el('div','nav');
  if(selecting){
-  [['Join TXT','TXT'],['Join ENHYPEN','ENHYPEN']].forEach(([label,g])=>actions.append(btn(label,()=>{state.group=g;state.introMissionDone=false;state.visited=[];go('arrival')},g==='TXT'?'secondary':'primary')));
+  [['Join TXT','TXT'],['Join ENHYPEN','ENHYPEN']].forEach(([label,g])=>actions.append(btn(label,()=>{state.group=g;state.introMissionDone=false;state.visited=[];state.squareIndex=recruitmentLines.length+1;go('town-square')},g==='TXT'?'secondary':'primary')));
+ }else if(confirmed){
+  actions.append(btn('Continue >>',()=>go('arrival')));
  }else{
   actions.append(btn(i===recruitmentLines.length-1?'Choose a group >>':'Next >>',()=>{state.squareIndex=i+1;go('town-square')}));
  }
@@ -391,7 +398,7 @@ function updateMission(){
  const tasks={
  title:['Start your adventure','Press Start game.'],
  intro:['Arrive in Kpopville','Watch the donation introduction.'],
- 'town-square':['Choose your group','Listen to Soobin and Jay, then make your choice.'],
+ 'town-square':['Choose your group','Listen to Soobin and Jungwon, then make your choice.'],
  choose:['Choose a group','Pick TXT or ENHYPEN.'],
  arrival:['Arrive in Kpopville','Click Explore Kpopville.'],
  map:['Explore Kpopville','Click Boyborhood or Girlborhood on the map.'],
