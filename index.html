@@ -237,21 +237,17 @@ footer .reset{padding:2px 6px;font-size:11px}
 .activity-art .desk-person.wonyoung-desk{height:92%;max-width:46%;left:8%;}
 .activity-art .desk-sign{z-index:3;}
 
-/* Seven-member introduction. One shared window, no page scroll. */
-.enhypen-group-stage{flex:1 1 0;min-height:0;display:flex;flex-direction:column;background:#ddd url('enhypen-house-inside.png') center / cover no-repeat;border:3px solid #000;border-bottom:0;overflow:hidden}
-.enhypen-roster{height:34%;min-height:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:6px 7px 2px;background:#ffffffb8;border-bottom:2px solid #000}
-.enhypen-member{display:flex;flex-direction:column;align-items:center;justify-content:end;min-width:0;min-height:0;overflow:hidden;filter:grayscale(.5) brightness(.9)}
-.enhypen-member.speaking{filter:none}
-.enhypen-member img{height:calc(100% - 17px);width:100%;object-fit:contain;object-position:bottom;min-height:0}
-.enhypen-name{font:bold clamp(8px,1vw,12px) Arial,sans-serif;line-height:16px;white-space:nowrap}
-.enhypen-no-sprite{height:calc(100% - 17px);width:85%;border:2px dashed #555;background:#ddd;display:grid;place-items:center;font:bold 11px Arial,sans-serif}
-.enhypen-focus{flex:1 1 0;min-height:0;display:flex;justify-content:center;align-items:flex-end;gap:8%;padding:0 4%}
-.enhypen-focus-person{width:auto;height:100%;max-width:45%;min-height:0;object-fit:contain;object-position:bottom}
-.enhypen-focus-person.yn{height:78%;max-width:31%}
-.enhypen-focus-person.inactive{filter:grayscale(.5) brightness(.9)}
-.enhypen-focus-placeholder{height:80%;width:36%;display:flex;align-items:center;justify-content:center;white-space:pre-line;text-align:center;border:3px dashed #555;background:#ddd;font-weight:900;font-size:clamp(12px,1.4vw,20px)}
+/* ENHYPEN opening group shot, followed by full-size two-character dialogue. */
 .enhypen-group-scene>.panel{max-height:43%;overflow:hidden}
-@media(max-width:700px){.enhypen-roster{gap:1px;padding:2px}.enhypen-name{font-size:7px}.enhypen-focus{gap:4%}.enhypen-focus-person.yn{max-width:37%}}
+.enhypen-group-stage{flex:1 1 0;min-height:0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;background:#ddd url('enhypen-house-inside.png') center / cover no-repeat;border:3px solid #000;border-bottom:0}
+.enhypen-group-shot{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:space-evenly;gap:0;padding:0 1%}
+.enhypen-group-shot img{height:91%;max-width:14%;min-width:0;object-fit:contain;object-position:bottom;filter:none}
+.enhypen-group-shot img:nth-child(2n){height:84%}
+.enhypen-group-shot img:nth-child(4){height:95%}
+.enhypen-portrait-pair{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:clamp(10px,4vw,52px);padding:0 5%;overflow:hidden}
+.enhypen-portrait-pair img{height:100%;max-width:46%;min-width:0;object-fit:contain;object-position:bottom}
+.enhypen-portrait-pair .yn{height:82%;max-width:34%}
+.enhypen-portrait-pair .inactive{filter:grayscale(.5) brightness(.9);opacity:1}
 </style>
 </head>
 <body>
@@ -298,24 +294,23 @@ function showEnhypenDialogue(){
  const line=enhypenDialogue[i];
  const scene=el('div','dialogue-scene enhypen-group-scene');
  const stage=el('div','enhypen-group-stage');
- const roster=el('div','enhypen-roster');
- enhypenMembers.forEach(member=>{
-   const isTalking=member.name===line.speaker;
-   const tile=el('div','enhypen-member'+(isTalking?' speaking':' inactive'));
-   if(member.img){const pic=document.createElement('img');pic.src=member.img;pic.alt=member.name;tile.append(pic);}
-   else tile.append(el('div','enhypen-no-sprite','JAKE'));
-   tile.append(el('span','enhypen-name',member.name));
-   roster.append(tile);
- });
- const focus=el('div','enhypen-focus');
- const yn=document.createElement('img');yn.src=ynImages[line.expression]||ynImages.default;yn.alt='Y/N';yn.className='enhypen-focus-person yn'+(line.speaker==='Y/N'?'':' inactive');
- focus.append(yn);
- if(line.speaker!=='Y/N'){
+ if(i===0){
+   // Establishing shot: all seven members together, without a top roster.
+   const shot=el('div','enhypen-group-shot');
+   enhypenMembers.forEach(member=>{
+     const pic=document.createElement('img');pic.src=member.img;pic.alt=member.name;shot.append(pic);
+   });
+   stage.append(shot);
+ }else{
+   // Dialogue: Y/N and only the member speaking, at comfortable portrait sizes.
+   const pair=el('div','enhypen-portrait-pair');
+   const yn=document.createElement('img');yn.src=ynImages[line.expression]||ynImages.default;yn.alt='Y/N';yn.className='yn'+(line.speaker==='Y/N'?'':' inactive');pair.append(yn);
    const member=enhypenMembers.find(item=>item.name===line.speaker);
-   if(member?.img){const pic=document.createElement('img');pic.src=member.name==='JAKE'&&line.jake==='happy'?'jake-happy.png':member.img;pic.alt=line.speaker;pic.className='enhypen-focus-person member';focus.append(pic);}
-   else focus.append(el('div','enhypen-focus-placeholder','JAKE\n(SPRITE COMING LATER)'));
+   if(member){
+     const pic=document.createElement('img');pic.src=member.name==='JAKE'&&line.jake==='happy'?'jake-happy.png':member.img;pic.alt=member.name;pic.className='member'+(line.speaker==='Y/N'?' inactive':'');pair.append(pic);
+   }
+   stage.append(pair);
  }
- stage.append(roster,focus);
  const box=el('section','panel');
  box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+enhypenDialogue.length));
  const nav=el('div','nav');
