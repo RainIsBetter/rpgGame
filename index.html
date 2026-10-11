@@ -350,12 +350,12 @@ const recruitmentLines=[
  {speaker:'NARRATOR',text:'The manager drops Y/N off in Central Plaza. A crowd of K-poppers immediately surrounds her.',yn:'scared'},
  {speaker:'Y/N',text:'Um... why is everybody staring at me?',yn:'scared'},
  {speaker:'SOOBIN',text:'Welcome to Kpopville! You should join TXT. We have five very normal guys and a basement.',yn:'default'},
- {speaker:'JAY',text:'Hold on. ENHYPEN has seven members. Seven is obviously more than five.',yn:'default',jay:'default'},
+ {speaker:'JUNGWON',text:'Hold on. ENHYPEN has seven members. Seven is obviously more than five.',yn:'default'},
  {speaker:'SOOBIN',text:"That's not how choosing a family works.",yn:'default'},
- {speaker:'JAY',text:'We also have a mansion. And I can make pancakes.',yn:'default',jay:'smile'},
- {speaker:'SOOBIN',text:'He burns the pancakes. We have snacks that are edible.',yn:'blush'},
+ {speaker:'JUNGWON',text:'We also have a mansion. And I can make sure everyone behaves.',yn:'default'},
+ {speaker:'SOOBIN',text:'You can barely keep this argument under control. We have snacks, at least.',yn:'blush'},
  {speaker:'Y/N',text:'You guys are really fighting over me...?',yn:'blush'},
- {speaker:'JAY',text:'So. What do you say? ENHYPEN?',yn:'default',jay:'smile'},
+ {speaker:'JUNGWON',text:'So. What do you say? ENHYPEN?',yn:'default'},
  {speaker:'SOOBIN',text:'Or TXT? It is YOUR choice.',yn:'default'}
 ];
 function showTownSquare(){
@@ -365,7 +365,7 @@ function showTownSquare(){
  const line=recruitmentLines[Math.min(i,recruitmentLines.length-1)];
  const scene=el('section','square-scene');
  const people=el('div','square-characters');
- const specs=[['soobin.png','SOOBIN',''],[ynImages[line.yn]||ynImages.default,'Y/N','square-yn'],[line.jay==='smile'?'jay-smile.png':'jay-default.png','JAY','']];
+ const specs=[['soobin.png','SOOBIN',''],[ynImages[line.yn]||ynImages.default,'Y/N','square-yn'],['jungwon.png','JUNGWON','']];
  specs.forEach(([src,name,cl])=>{
    const img=document.createElement('img');img.src=src;img.alt=name;
    img.className='square-person '+cl+(!selecting&&line.speaker!==name?' not-speaking':'');
