@@ -236,6 +236,22 @@ footer .reset{padding:2px 6px;font-size:11px}
 .activity-art .desk-person{z-index:2;}
 .activity-art .desk-person.wonyoung-desk{height:92%;max-width:46%;left:8%;}
 .activity-art .desk-sign{z-index:3;}
+
+/* Seven-member introduction. One shared window, no page scroll. */
+.enhypen-group-stage{flex:1 1 0;min-height:0;display:flex;flex-direction:column;background:#ddd url('enhypen-house-inside.png') center / cover no-repeat;border:3px solid #000;border-bottom:0;overflow:hidden}
+.enhypen-roster{height:34%;min-height:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:6px 7px 2px;background:#ffffffb8;border-bottom:2px solid #000}
+.enhypen-member{display:flex;flex-direction:column;align-items:center;justify-content:end;min-width:0;min-height:0;overflow:hidden;filter:grayscale(.5) brightness(.9)}
+.enhypen-member.speaking{filter:none}
+.enhypen-member img{height:calc(100% - 17px);width:100%;object-fit:contain;object-position:bottom;min-height:0}
+.enhypen-name{font:bold clamp(8px,1vw,12px) Arial,sans-serif;line-height:16px;white-space:nowrap}
+.enhypen-no-sprite{height:calc(100% - 17px);width:85%;border:2px dashed #555;background:#ddd;display:grid;place-items:center;font:bold 11px Arial,sans-serif}
+.enhypen-focus{flex:1 1 0;min-height:0;display:flex;justify-content:center;align-items:flex-end;gap:8%;padding:0 4%}
+.enhypen-focus-person{width:auto;height:100%;max-width:45%;min-height:0;object-fit:contain;object-position:bottom}
+.enhypen-focus-person.yn{height:78%;max-width:31%}
+.enhypen-focus-person.inactive{filter:grayscale(.5) brightness(.9)}
+.enhypen-focus-placeholder{height:80%;width:36%;display:flex;align-items:center;justify-content:center;white-space:pre-line;text-align:center;border:3px dashed #555;background:#ddd;font-weight:900;font-size:clamp(12px,1.4vw,20px)}
+.enhypen-group-scene>.panel{max-height:43%;overflow:hidden}
+@media(max-width:700px){.enhypen-roster{gap:1px;padding:2px}.enhypen-name{font-size:7px}.enhypen-focus{gap:4%}.enhypen-focus-person.yn{max-width:37%}}
 </style>
 </head>
 <body>
@@ -255,35 +271,61 @@ function stage(symbol,caption){let a=el('div','stage');a.append(el('div','art',s
 function imageStage(src,alt){let a=el('div','stage art-image-stage');let img=document.createElement('img');img.src=src;img.alt=alt||'';a.append(img);return a}
 const downtownPlaces={hospital:'Hospital',studio:'Dance / Singing Studio',plaza:'Central Plaza',mall:'Mall',club:'Club',bakery:'Bakery'};
 const enhypenDialogue=[
- {speaker:'Y/N',expression:'scared',text:'Um... hello? Is this the ENHYPEN house?'},
- {speaker:'SUNGHOON',expression:'scared',text:'Yeah. Why do you look like you just saw a ghost?'},
- {speaker:'Y/N',expression:'default',text:'Oh. I just got here. Are you Sunghoon?'},
- {speaker:'SUNGHOON',expression:'default',text:"Yes, I'm Sunghoon."},
- {speaker:'Y/N',expression:'blush',text:'O-oh! Nice to meet you, Sunghoon...'},
- {speaker:'SUNGHOON',expression:'blush',text:'Nice to meet you too. Anyway, welcome to the house.'}
+ {speaker:'Y/N',expression:'scared',text:'Wait... all SEVEN of you live here?'},
+ {speaker:'JUNGWON',expression:'default',text:'Yep! I am Jungwon. Welcome to ENHYPEN. We heard you chose us.'},
+ {speaker:'HEESEUNG',expression:'default',text:'I am Heeseung. Do not worry, we are mostly normal.'},
+ {speaker:'JAY',expression:'default',text:'I told you our mansion was better. Welcome home.'},
+ {speaker:'JAKE',expression:'default',text:'Hey! I am Jake. We saved you a spot.'},
+ {speaker:'SUNGHOON',expression:'default',text:'Sunghoon. You will get used to the noise eventually.'},
+ {speaker:'SUNOO',expression:'blush',text:'I am Sunoo! Finally, someone new to talk to!'},
+ {speaker:'NI-KI',expression:'default',text:'And I am Ni-ki. Are you any good at dancing?'},
+ {speaker:'Y/N',expression:'blush',text:'This is a LOT of people to remember...'},
+ {speaker:'JUNGWON',expression:'default',text:'That is okay. Come on in, we will show you around.'}
 ];
 const ynImages={scared:'yn-scared.png',default:'yn-default.png',blush:'yn-blush.png'};
+const enhypenMembers=[
+ {name:'JUNGWON',img:'jungwon.png'},
+ {name:'HEESEUNG',img:'heeseung.png'},
+ {name:'JAY',img:'jay-default.png'},
+ {name:'JAKE',img:null},
+ {name:'SUNGHOON',img:'hoon.png'},
+ {name:'SUNOO',img:'sunoo.png'},
+ {name:'NI-KI',img:'niki.png'}
+];
 function showEnhypenDialogue(){
  center();
  const i=Math.max(0,Math.min(state.dialogueIndex||0,enhypenDialogue.length-1));
  const line=enhypenDialogue[i];
- const scene=el('div','dialogue-scene');
- const portraits=el('div','portrait-row house-bg');
- const yn=document.createElement('img');yn.className='person-portrait yn-portrait'+(line.speaker==='Y/N'?'':' inactive');
- yn.src=ynImages[line.expression];yn.alt='Y/N';
- const sunghoon=document.createElement('img');sunghoon.className='person-portrait'+(line.speaker==='SUNGHOON'?'':' inactive');
- sunghoon.src='hoon.png';sunghoon.alt='Sunghoon';
- portraits.append(yn,sunghoon);
+ const scene=el('div','dialogue-scene enhypen-group-scene');
+ const stage=el('div','enhypen-group-stage');
+ const roster=el('div','enhypen-roster');
+ enhypenMembers.forEach(member=>{
+   const isTalking=member.name===line.speaker;
+   const tile=el('div','enhypen-member'+(isTalking?' speaking':' inactive'));
+   if(member.img){const pic=document.createElement('img');pic.src=member.img;pic.alt=member.name;tile.append(pic);}
+   else tile.append(el('div','enhypen-no-sprite','JAKE'));
+   tile.append(el('span','enhypen-name',member.name));
+   roster.append(tile);
+ });
+ const focus=el('div','enhypen-focus');
+ const yn=document.createElement('img');yn.src=ynImages[line.expression]||ynImages.default;yn.alt='Y/N';yn.className='enhypen-focus-person yn'+(line.speaker==='Y/N'?'':' inactive');
+ focus.append(yn);
+ if(line.speaker!=='Y/N'){
+   const member=enhypenMembers.find(item=>item.name===line.speaker);
+   if(member?.img){const pic=document.createElement('img');pic.src=member.img;pic.alt=line.speaker;pic.className='enhypen-focus-person member';focus.append(pic);}
+   else focus.append(el('div','enhypen-focus-placeholder','JAKE\n(SPRITE COMING LATER)'));
+ }
+ stage.append(roster,focus);
  const box=el('section','panel');
  box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+enhypenDialogue.length));
  const nav=el('div','nav');
  nav.append(btn(i===enhypenDialogue.length-1?'Finish':'Next >>',()=>{
    if(i===enhypenDialogue.length-1){if(state.group==='ENHYPEN')state.introMissionDone=true;go('house');}
-   else {state.dialogueIndex=i+1;go('enhypen-dialogue')}
+   else{state.dialogueIndex=i+1;go('enhypen-dialogue');}
  }));
  nav.append(btn('Leave house',()=>go('neighborhood'),'secondary'));
- box.append(nav);scene.append(portraits,box);
- add(tag('ENHYPEN HOUSE'),scene);
+ box.append(nav);scene.append(stage,box);
+ add(tag('ENHYPEN HOUSE / MEET THE MEMBERS'),scene);
 }
 
 const txtDialogue=[
@@ -362,7 +404,7 @@ function updateMission(){
  'downtown-place':['Explore Downtown','Return to Downtown when you are ready.'],
  neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
- 'enhypen-dialogue':['Talk to Sunghoon','Finish your conversation.'],
+ 'enhypen-dialogue':['Meet ENHYPEN','Finish meeting the members.'],
  park:['Photocard Park','Explore the park. Events will appear here later.'],
  gym:['Visit the Gym','Ask Sunghoon about workouts or choose an exercise.'],
  salon:['Visit Wonyoung at the Salon','Talk to Wonyoung or choose a beauty treatment.'],
@@ -371,8 +413,8 @@ function updateMission(){
  };
  let [objective,hint]=tasks[state.scene]||tasks.title;
  if(state.group && !['title','intro','town-square','choose'].includes(state.scene)){
-   if(state.introMissionDone){objective='MISSION COMPLETE!';hint='You spoke with '+(state.group==='TXT'?'Soobin':'Sunghoon')+'. Explore Kpopville!';}
-   else {objective='Talk to '+(state.group==='TXT'?'Soobin':'Sunghoon');hint='Go to Boyborhood → '+state.group+' house and finish the conversation.';}
+   if(state.introMissionDone){objective='MISSION COMPLETE!';hint='You spoke with '+(state.group==='TXT'?'Soobin':'ENHYPEN')+'. Explore Kpopville!';}
+   else {objective='Talk to '+(state.group==='TXT'?'Soobin':'the ENHYPEN members');hint='Go to Boyborhood → '+state.group+' house and finish the conversation.';}
  }
  document.getElementById('missionText').textContent=objective;
  document.getElementById('missionHint').textContent=hint;
@@ -541,7 +583,7 @@ center();
 if(state.house==='TXT'){
  add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR',state.group==='TXT'?'You are outside the TXT house. Go inside to talk to Soobin.':'This is the TXT house. The TXT story is only available if you chose TXT.',state.group==='TXT'?[['Go inside / Talk to Soobin',()=>{state.txtDialogueIndex=0;go('txt-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]:[['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else if(state.house==='ENHYPEN'){
- add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-outside.png','ENHYPEN house exterior'),panel('NARRATOR',state.group==='ENHYPEN'?'You are outside the ENHYPEN house. Go inside to talk to Sunghoon.':'This is the ENHYPEN house. The ENHYPEN story is only available if you chose ENHYPEN.',state.group==='ENHYPEN'?[['Go inside / Talk to Sunghoon',()=>{state.dialogueIndex=0;go('enhypen-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]:[['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
+ add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-outside.png','ENHYPEN house exterior'),panel('NARRATOR',state.group==='ENHYPEN'?'You are outside the ENHYPEN house. Go inside to meet the ENHYPEN members.':'This is the ENHYPEN house. The ENHYPEN story is only available if you chose ENHYPEN.',state.group==='ENHYPEN'?[['Go inside / Meet ENHYPEN',()=>{state.dialogueIndex=0;go('enhypen-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]:[['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else{
  add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
 }
