@@ -533,15 +533,15 @@ const backButton=btn('← MAIN MAP',()=>go('map'),'neighborhood-back');
 backButton.setAttribute('aria-label','Back to Kpopville main map');
 add(map,backButton);
 }
-else if(state.scene==='enhypen-dialogue'){showEnhypenDialogue()}
-else if(state.scene==='txt-dialogue'){showTxtDialogue()}
+else if(state.scene==='enhypen-dialogue'){if(state.group==='ENHYPEN')showEnhypenDialogue();else go('house')}
+else if(state.scene==='txt-dialogue'){if(state.group==='TXT')showTxtDialogue();else go('house')}
 
 else if(state.scene==='house'){
 center();
 if(state.house==='TXT'){
- add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR','You are outside the TXT house. Click below to go inside and talk to Soobin.',[['Go inside / Talk to Soobin',()=>{state.txtDialogueIndex=0;go('txt-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
+ add(tag('TXT HOUSE'),el('h1','big','TXT HOUSE'),imageStage('txt-house-outside.png','TXT house exterior'),panel('NARRATOR',state.group==='TXT'?'You are outside the TXT house. Go inside to talk to Soobin.':'This is the TXT house. The TXT story is only available if you chose TXT.',state.group==='TXT'?[['Go inside / Talk to Soobin',()=>{state.txtDialogueIndex=0;go('txt-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]:[['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else if(state.house==='ENHYPEN'){
- add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-outside.png','ENHYPEN house exterior'),panel('NARRATOR','You are outside the ENHYPEN house. Go inside to talk to Sunghoon.',[['Go inside / Talk to Sunghoon',()=>{state.dialogueIndex=0;go('enhypen-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
+ add(tag('ENHYPEN HOUSE'),el('h1','big','ENHYPEN HOUSE'),imageStage('enhypen-house-outside.png','ENHYPEN house exterior'),panel('NARRATOR',state.group==='ENHYPEN'?'You are outside the ENHYPEN house. Go inside to talk to Sunghoon.':'This is the ENHYPEN house. The ENHYPEN story is only available if you chose ENHYPEN.',state.group==='ENHYPEN'?[['Go inside / Talk to Sunghoon',()=>{state.dialogueIndex=0;go('enhypen-dialogue')}],['Back to neighborhood',()=>go('neighborhood'),'secondary']]:[['Back to neighborhood',()=>go('neighborhood'),'secondary']]));
 }else{
  add(tag('House'),stage('[ HOUSE ]','YOUR '+(state.house||'GROUP')+' HOUSE ART GOES HERE'),panel(state.house||'NARRATOR',`You're at the ${state.house||'group'} house. More story and dialogue will be added later.`,[['Back to neighborhood',()=>go('neighborhood')],['Main map',()=>go('map'),'secondary']]));
 }
