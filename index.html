@@ -467,7 +467,7 @@ function showActivity(place){
  box.append(art,controls);add(box);
 }
 function render(){screen.replaceChildren();updateMission();
-if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A tiny click-to-explore story game. There are no downloads, no battles, and absolutely no reasonable adults.'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
+if(state.scene==='title'){center();add(tag('A very unserious adventure'),el('h1','big','Welcome to Kpopville'),el('p','lead','A super cool donated adventure'));add(btn('Start game',()=>go('intro')));if(state.group)add(btn('Continue saved game',()=>go('map'),'secondary'));}
 else if(state.scene==='intro'){center();add(tag('Prologue: The donation'),stage('MOM?!','YOUR FUTURE DONATION VIDEO GOES HERE'),panel('MOM','I donated you to Kpopville. The manager is waiting outside.',[['Continue to Town Square',()=>{state.squareIndex=0;go('town-square')}] ]));}
 else if(state.scene==='choose'){state.scene='town-square';render();}
 else if(state.scene==='town-square'){showTownSquare()}
