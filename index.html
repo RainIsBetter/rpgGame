@@ -523,7 +523,7 @@ if(state.scene==='title'){center();add(tag('wowza'),el('h1','big','Welcome to Kp
 else if(state.scene==='intro'){showDonation();}
 else if(state.scene==='choose'){state.scene='town-square';render();}
 else if(state.scene==='town-square'){showTownSquare()}
-else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),stage('KPOPVILLE','DRAW THE CITY HERE'),panel('NARRATOR',`After a very loud argument in Central Plaza, you chose ${state.group}. The group is ready to take you to their house.`,[['Explore Kpopville',()=>go('map')]]));}
+else if(state.scene==='arrival'){center();add(tag('Chapter 1: A new address'),imageStage('kpopville-chapter1.png','Kpopville exterior with the Kpopville sign'),panel('NARRATOR',`After a very loud argument in Central Plaza, you chose ${state.group}. The group is ready to take you to their house.`,[['Explore Kpopville',()=>go('map')]]));}
 else if(state.scene==='map'){
 center();add(el('p','map-caption','CLICK A NEIGHBORHOOD TO ENTER IT'));
 let m=el('div','worldmap');let img=document.createElement('img');img.src='kpopville-map.png';img.alt='Your hand-drawn Kpopville map';m.append(img);
