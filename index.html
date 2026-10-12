@@ -262,6 +262,13 @@ footer .reset{padding:2px 6px;font-size:11px}
 .donation-scene>.panel{width:100%;max-width:none;max-height:46%;flex:0 0 auto;overflow:hidden}
 .donation-skip{position:fixed;top:14px;right:15px;z-index:60;background:#b8c8e7;border:3px solid #000;font:900 clamp(13px,1.5vw,18px) 'Comic Sans MS',Arial,sans-serif;padding:7px 12px}
 @media(max-width:600px){.donation-skip{top:7px;right:7px;padding:5px 8px}.donation-character.yn{left:3%}.donation-character.mom,.donation-character.driver{right:4%}}
+
+/* Yeonjun's first meeting at Photocard Park. */
+.yeonjun-park-stage{flex:1 1 0;min-height:0;display:flex;align-items:flex-end;justify-content:center;gap:clamp(12px,5%,64px);padding:0 5%;overflow:hidden;background:#b9d5bb url('park-bg.png') center / cover no-repeat;border:3px solid #000;border-bottom:0}
+.yeonjun-park-stage img{height:97%;max-width:46%;min-width:0;object-fit:contain;object-position:bottom}
+.yeonjun-park-stage .yn{height:80%;max-width:34%}
+.yeonjun-park-stage .inactive{filter:grayscale(.5) brightness(.89);opacity:1}
+.yeonjun-park-scene>.panel{max-height:43%;overflow:hidden}
 </style>
 </head>
 <body>
@@ -270,7 +277,7 @@ footer .reset{padding:2px 6px;font-size:11px}
 const screen=document.getElementById('screen');
 const KEY='kpopville-demo-save-v1';
 let state={scene:'title',group:null,visited:[],area:'boys',introMissionDone:false};
-try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue','txt-dialogue','town-square'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
+try{let saved=JSON.parse(localStorage.getItem(KEY));if(saved && ['title','intro','choose','arrival','map','neighborhood','house','location','downtown','downtown-place','enhypen-dialogue','txt-dialogue','town-square','yeonjun-dialogue'].includes(saved.scene)){state={...state,...saved};if(state.scene==='location')state.scene='map';}}catch{}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}function go(scene){state.scene=scene;save();render()}
 function btn(label,action,cls='primary'){let b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=action;return b}
 function tag(s){let a=document.createElement('div');a.className='tag';a.textContent=s;return a}
@@ -452,7 +459,8 @@ function updateMission(){
  neighborhood:['Visit a house','Blue houses are clickable. Gray houses are locked.'],
  house:['Look around the house','Go back to the neighborhood when you are done.'],
  'enhypen-dialogue':['Meet ENHYPEN','Finish meeting the members.'],
- park:['Photocard Park','Explore the park. Events will appear here later.'],
+ park:['Photocard Park','Explore the park and visit Yeonjun.'],
+ 'yeonjun-dialogue':['Meet Yeonjun','Talk to Yeonjun at Photocard Park.'],
  gym:['Visit the Gym','Ask Sunghoon about workouts or choose an exercise.'],
  salon:['Visit Wonyoung at the Salon','Talk to Wonyoung or choose a beauty treatment.'],
  'txt-dialogue':['Talk to Soobin','Finish your conversation.'],
@@ -468,6 +476,44 @@ function updateMission(){
 }
 // Reserved for future plot events. A mission can set state.specialVisit to
 // {place:'gym'|'salon'|'park',character:'Name',text:'...'}.
+const yeonjunExpressions={
+ neutral:'yeonjun-neutral.png',pissed:'yeonjun-pissed.png',smirk:'yeonjun-smirk.png',
+ shocked:'yeonjun-shocked.png',blush:'yeonjun-blush.png'
+};
+const yeonjunDialogue=[
+ {speaker:'NARRATOR',expression:'neutral',yn:'default',text:'Y/N wanders through Photocard Park and notices a boy searching frantically in the grass.'},
+ {speaker:'Y/N',expression:'neutral',yn:'default',text:'Um... did you lose something?'},
+ {speaker:'YEONJUN',expression:'pissed',yn:'scared',text:'YES. Someone stole my limited-edition photocard. This is an emergency.'},
+ {speaker:'Y/N',expression:'shocked',yn:'scared',text:'Wait. YOU’RE YEONJUN?! From TXT?!'},
+ {speaker:'YEONJUN',expression:'smirk',yn:'default',text:'The one and only. Try not to faint.'},
+ {speaker:'Y/N',expression:'smirk',yn:'default',text:'I wasn’t going to! Also... is that your photocard sticking out of your pocket?'},
+ {speaker:'YEONJUN',expression:'shocked',yn:'default',text:'WHAT?! How did that get there?!'},
+ {speaker:'Y/N',expression:'pissed',yn:'default',text:'You just accused the entire park of stealing it.'},
+ {speaker:'YEONJUN',expression:'blush',yn:'blush',text:'Okay, okay. That was embarrassing. You didn’t see anything, right?'},
+ {speaker:'Y/N',expression:'smirk',yn:'blush',text:'I’m telling everyone.'},
+ {speaker:'YEONJUN',expression:'blush',yn:'default',text:'Nooo! At least tell them I looked cool. Anyway, welcome to Kpopville.'},
+ {speaker:'Y/N',expression:'neutral',yn:'default',text:'Nice meeting you, Yeonjun! See you around the park!'}
+];
+function startYeonjunEncounter(){state.yeonjunIndex=0;go('yeonjun-dialogue')}
+function showYeonjunEncounter(){
+ center();
+ const i=Math.max(0,Math.min(state.yeonjunIndex||0,yeonjunDialogue.length-1));
+ const line=yeonjunDialogue[i];
+ const scene=el('div','dialogue-scene yeonjun-park-scene');
+ const art=el('div','yeonjun-park-stage');
+ const yn=document.createElement('img');yn.className='yn'+(line.speaker==='Y/N'?'':' inactive');yn.src=ynImages[line.yn]||ynImages.default;yn.alt='Y/N';
+ const yeonjun=document.createElement('img');yeonjun.className='member'+(line.speaker==='YEONJUN'?'':' inactive');yeonjun.src=yeonjunExpressions[line.expression]||yeonjunExpressions.neutral;yeonjun.alt='Yeonjun ('+line.expression+')';
+ art.append(yn,yeonjun);
+ const box=el('section','panel');box.append(el('div','speaker',line.speaker),el('p','dialogue',line.text),el('p','dialogue-progress',(i+1)+' / '+yeonjunDialogue.length));
+ const nav=el('div','nav');
+ nav.append(btn(i===yeonjunDialogue.length-1?'Finish':'Next >>',()=>{
+  if(i===yeonjunDialogue.length-1){state.metYeonjun=true;state.yeonjunIndex=0;go('park')}
+  else{state.yeonjunIndex=i+1;go('yeonjun-dialogue')}
+ }));
+ nav.append(btn('Leave park',()=>{state.metYeonjun=true;go('map')},'secondary'));
+ box.append(nav);scene.append(art,box);
+ add(tag('PHOTOCARD PARK / MEET YEONJUN'),scene);
+}
 function showActivity(place){
  center();
  let title={park:'PHOTOCARD PARK',gym:'GYM',salon:'SALON'}[place];
@@ -507,6 +553,7 @@ function showActivity(place){
   activityButton('Facial','Y/N gets a facial treatment.');
   activityButton('Makeup','Y/N tries a new makeup look.');
  }
+ if(place==='park' && state.metYeonjun){controls.append(btn('Talk to Yeonjun again',startYeonjunEncounter,'secondary'))}
  const mission=state.specialVisit;
  const active=mission&&mission.place===place;
  if(active){
@@ -532,6 +579,8 @@ let downtown=btn('Enter Downtown',()=>go('downtown'),'hotspot downtown');downtow
 [['park','Park'],['gym','Gym'],['salon','Salon']].forEach(([id,label])=>{let b=btn('Enter '+label,()=>go(id),'hotspot '+id);b.setAttribute('aria-label','Enter '+label);b.title='Enter '+label;m.append(b)});
 add(m);add(el('p','map-caption','CLICK DOWNTOWN, BOYBORHOOD, OR GIRLBORHOOD'));
 }
+else if(state.scene==='yeonjun-dialogue'){showYeonjunEncounter()}
+else if(state.scene==='park' && !state.metYeonjun){startYeonjunEncounter()}
 else if(['park','gym','salon'].includes(state.scene)){showActivity(state.scene)}
 else if(state.scene==='downtown'){
 center();
